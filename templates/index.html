@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PaddyGuard AI — Smart Paddy Disease Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="17" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+          <path d="M18 5C18 5 10 10 10 19C10 23.8 13 27.5 18 29C23 27.5 26 23.8 26 19C26 10 18 5 18 5Z" fill="#4ade80"/>
+          <path d="M18 11C18 11 14 14.5 14 19C14 21.8 15.5 24 18 25C20.5 24 22 21.8 22 19C22 14.5 18 11 18 11Z" fill="#16a34a"/>
+          <line x1="18" y1="29" x2="18" y2="33" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15" y1="31.5" x2="18" y2="29" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="21" y1="31.5" x2="18" y2="29" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div><span class="logo-name">PaddyGuard</span><span class="logo-ai">AI</span></div>
+    </div>
+    <nav class="nav">
+      <a class="nav-link active" href="#upload">Detect</a>
+      <a class="nav-link" href="#how">How It Works</a>
+      <a class="nav-link" href="#diseases">Diseases</a>
+      <a class="nav-link map-link" href="/map">📍 Find Shops</a>
+    </nav>
+    <div class="header-right">
+      <span class="live-badge"><span class="live-dot"></span>AI Live</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-glow g1"></div>
+  <div class="hero-glow g2"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#4ade80" stroke-width="1"/><path d="M4 6L5.5 7.5L8 4.5" stroke="#4ade80" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Trusted by 1000+ Paddy Farmers · Free Forever
+      </div>
+      <h1 class="hero-title">Protect your paddy<br/><span class="hero-em">before it's too late</span></h1>
+      <p class="hero-desc">Upload a leaf photo. Our CNN AI instantly detects diseases, recommends chemical and organic pesticides with exact dosage, and finds nearby shops — in seconds.</p>
+      <div class="hero-btns">
+        <a href="#upload" class="btn-hero-primary">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V12M5 6L9 2L13 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Start Analyzing
+        </a>
+        <a href="/map" class="btn-hero-secondary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M8 11V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Find Nearby Shops
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><span class="hstat-n">10</span><span class="hstat-l">Diseases</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-n">98%</span><span class="hstat-l">Accuracy</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-n">&lt;5s</span><span class="hstat-l">Result Time</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-n">Free</span><span class="hstat-l">Always</span></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-card-stack">
+        <div class="hcard hcard-1"><div class="hcard-icon critical">⚠</div><div><div class="hcard-title">Neck Blast Detected</div><div class="hcard-sub">Critical · Act Immediately</div></div><div class="hcard-conf">94%</div></div>
+        <div class="hcard hcard-2"><div class="hcard-icon healthy">✓</div><div><div class="hcard-title">Healthy Crop</div><div class="hcard-sub">No Disease · Keep Monitoring</div></div><div class="hcard-conf">99%</div></div>
+        <div class="hcard hcard-3"><div class="hcard-icon moderate">!</div><div><div class="hcard-title">Brown Spot</div><div class="hcard-sub">Moderate · 3 Treatments</div></div><div class="hcard-conf">87%</div></div>
+        <div class="hero-img-decoration">
+          <div class="decoration-ring r1"></div>
+          <div class="decoration-ring r2"></div>
+          <div class="decoration-ring r3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="features-strip">
+  <div class="features-strip-inner">
+    <div class="fstrip-item"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2C9 2 3 6 3 11C3 14 5.5 17 9 17C12.5 17 15 14 15 11C15 6 9 2 9 2Z" stroke="#4ade80" stroke-width="1.5"/></svg>10 Disease Classes</div>
+    <div class="fstrip-div">·</div>
+    <div class="fstrip-item"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="#4ade80" stroke-width="1.5"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="#4ade80" stroke-width="1.5"/><rect x="2" y="10" width="6" height="6" rx="1.5" stroke="#4ade80" stroke-width="1.5"/><rect x="10" y="10" width="6" height="6" rx="1.5" stroke="#4ade80" stroke-width="1.5"/></svg>CNN Deep Learning</div>
+    <div class="fstrip-div">·</div>
+    <div class="fstrip-item"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="8" r="4" stroke="#4ade80" stroke-width="1.5"/><path d="M9 12V16" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></svg>Google Maps Integration</div>
+    <div class="fstrip-div">·</div>
+    <div class="fstrip-item"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9L7 13L15 5" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Chemical + Organic Treatments</div>
+    <div class="fstrip-div">·</div>
+    <div class="fstrip-item"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#4ade80" stroke-width="1.5"/><path d="M9 5V9L12 11" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></svg>Real-time Analysis</div>
+  </div>
+</div>
+
+<section class="upload-section" id="upload">
+  <div class="container">
+    <div class="sec-eyebrow">Step 1 — Upload</div>
+    <h2 class="sec-title">Analyze your paddy leaf</h2>
+    <p class="sec-desc">Take a clear close-up photo of the affected leaf in good natural lighting for best results.</p>
+    <div class="upload-layout">
+      <div class="upload-main-box" id="dropZone">
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden/>
+        <div id="uploadIdle" class="upload-idle">
+          <div class="upload-icon-wrap">
+            <div class="upload-pulse"></div>
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <path d="M22 8V28M14 16L22 8L30 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 36H36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="upload-h">Drop your leaf photo here</h3>
+          <p class="upload-p">Drag and drop or <button class="link-btn" onclick="document.getElementById('fileInput').click()">browse files</button></p>
+          <div class="upload-chips">
+            <span class="uchip">📷 JPG / PNG / WEBP</span>
+            <span class="uchip">📏 Max 10MB</span>
+            <span class="uchip">🍃 Single leaf</span>
+          </div>
+        </div>
+        <div id="uploadPreview" class="upload-preview-box" style="display:none">
+          <div class="preview-wrap">
+            <img id="previewImg" src="" alt="Leaf preview"/>
+            <div class="preview-ready">✓ Ready</div>
+          </div>
+          <div class="preview-actions">
+            <button class="btn-analyze" onclick="analyzeImage()">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Analyze Now
+            </button>
+            <button class="btn-retake" onclick="resetUpload()">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8C2 4.69 4.69 2 8 2C10.5 2 12.7 3.4 13.8 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 2V6H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Retake
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="upload-sidebar">
+        <div class="sidebar-card">
+          <div class="sc-title">📸 Photo Tips</div>
+          <ul class="sc-list">
+            <li>Take in natural daylight</li>
+            <li>Focus on the diseased spot</li>
+            <li>Fill frame with the leaf</li>
+            <li>Avoid blurry or dark shots</li>
+            <li>Use a single leaf if possible</li>
+          </ul>
+        </div>
+        <div class="sidebar-card">
+          <div class="sc-title">🎯 Severity Guide</div>
+          <div class="sev-items">
+            <div class="sev-item"><span class="sev-dot" style="background:#22c55e"></span><span>Healthy</span></div>
+            <div class="sev-item"><span class="sev-dot" style="background:#eab308"></span><span>Low</span></div>
+            <div class="sev-item"><span class="sev-dot" style="background:#f97316"></span><span>Moderate</span></div>
+            <div class="sev-item"><span class="sev-dot" style="background:#ef4444"></span><span>High</span></div>
+            <div class="sev-item"><span class="sev-dot" style="background:#7c3aed"></span><span>Critical</span></div>
+          </div>
+        </div>
+        <a href="/map" class="sidebar-map-btn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M10 14V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="9" r="2" fill="currentColor" opacity="0.4"/></svg>
+          Find Pesticide Shops Near You
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="loading-card">
+    <div class="loading-rings">
+      <div class="lr lr1"></div>
+      <div class="lr lr2"></div>
+      <div class="lr lr3"></div>
+      <div class="lr-center">🌿</div>
+    </div>
+    <div class="loading-title">Analyzing your leaf</div>
+    <div class="loading-step" id="loadingStep">Running CNN model...</div>
+    <div class="loading-bar"><div class="loading-bar-fill" id="loadingBar"></div></div>
+  </div>
+</div>
+
+<section class="results-section" id="resultsSection" style="display:none">
+  <div class="container">
+    <div class="result-card" id="resultCard">
+      <div class="result-img-col">
+        <img id="resultImg" src="" alt="Analyzed leaf"/>
+        <div class="result-img-lbl">Analyzed Leaf</div>
+      </div>
+      <div class="result-info-col">
+        <div class="result-badges">
+          <div class="result-sev" id="resultSev"></div>
+          <div class="result-urg" id="resultUrg"></div>
+        </div>
+        <h2 class="result-name" id="resultName"></h2>
+        <p class="result-desc" id="resultDescEl"></p>
+        <div class="result-action">
+          <div class="ra-label">Recommended Action</div>
+          <div class="ra-text" id="resultActionEl"></div>
+        </div>
+      </div>
+      <div class="result-conf-col">
+        <div class="conf-ring-outer">
+          <svg viewBox="0 0 120 120" class="conf-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#16a34a" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+              id="confCircle" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="conf-text">
+            <div class="conf-pct" id="confPct">0%</div>
+            <div class="conf-lbl">AI Confidence</div>
+          </div>
+        </div>
+        <div class="top3-box">
+          <div class="top3-hdr">Top Predictions</div>
+          <div id="top3El"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lowconf-warn" id="lowconfWarn" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L18 17H2L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="10" y1="9" x2="10" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="15.5" r="0.8" fill="currentColor"/></svg>
+      <div><strong>Low confidence prediction.</strong> Please retake the photo in better lighting or consult a local agricultural officer.</div>
+    </div>
+
+    <div class="pesticide-sec">
+      <div class="ps-header">
+        <div>
+          <div class="sec-eyebrow">Step 2 — Treatment</div>
+          <h3 class="ps-title">Pesticide Recommendations</h3>
+        </div>
+        <div class="ps-tabs">
+          <button class="ps-tab active" id="tabChem" onclick="switchTab('chem')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2H9L11 6V12H3V6L5 2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Chemical
+          </button>
+          <button class="ps-tab" id="tabOrg" onclick="switchTab('org')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2C7 2 3 5 3 8.5C3 11 4.8 13 7 13C9.2 13 11 11 11 8.5C11 5 7 2 7 2Z" stroke="currentColor" stroke-width="1.2"/></svg>
+            Organic / Bio
+          </button>
+        </div>
+      </div>
+      <div id="chemGrid" class="ps-grid"></div>
+      <div id="orgGrid" class="ps-grid" style="display:none"></div>
+    </div>
+
+    <div class="tips-sec">
+      <div class="sec-eyebrow">Step 3 — Prevention</div>
+      <h3 class="ps-title">Preventive Tips</h3>
+      <div class="tips-grid" id="tipsGrid"></div>
+    </div>
+
+    <div class="shop-banner">
+      <div class="sb-left">
+        <div class="sb-icon">📍</div>
+        <div>
+          <h4>Find Pesticide Shops Near You</h4>
+          <p>Use Google Maps to locate nearby agricultural shops and buy the recommended pesticides.</p>
+        </div>
+      </div>
+      <a href="/map" class="btn-shop">Open Maps →</a>
+    </div>
+
+    <div class="reset-wrap">
+      <button class="btn-reset-all" onclick="resetAll()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9C3 5.69 5.69 3 9 3C11.5 3 13.7 4.5 14.7 6.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 9C15 12.31 12.31 15 9 15C6.5 15 4.3 13.5 3.3 11.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 4V7H12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14V11H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Analyze Another Leaf
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="how-sec" id="how">
+  <div class="container">
+    <div class="sec-eyebrow center">Process</div>
+    <h2 class="sec-title center">How PaddyGuard AI Works</h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-num">01</div><div class="how-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="2" y="4" width="28" height="24" rx="4" stroke="currentColor" stroke-width="1.8"/><circle cx="11" cy="14" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M2 25L10 17L15 22L21 15L30 25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Upload Photo</h4><p>Take a clear close-up of the affected paddy leaf and upload it.</p></div>
+      <div class="how-arrow">→</div>
+      <div class="how-card"><div class="how-num">02</div><div class="how-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="3" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><rect x="18" y="3" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="18" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><rect x="18" y="18" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/></svg></div><h4>CNN Analysis</h4><p>Deep learning model detects disease patterns with high accuracy.</p></div>
+      <div class="how-arrow">→</div>
+      <div class="how-card"><div class="how-num">03</div><div class="how-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 3C16 3 8 9 8 18C8 23 11 28 16 29C21 28 24 23 24 18C24 9 16 3 16 3Z" stroke="currentColor" stroke-width="1.8"/><path d="M11 18H21M16 13V23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><h4>Get Treatment</h4><p>Chemical and organic pesticide options with exact dosage and timing.</p></div>
+      <div class="how-arrow">→</div>
+      <div class="how-card"><div class="how-num">04</div><div class="how-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="13" r="6" stroke="currentColor" stroke-width="1.8"/><path d="M16 19V30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="13" r="2.5" fill="currentColor" opacity="0.35"/></svg></div><h4>Find Shops</h4><p>Locate nearby pesticide vendors using Google Maps integration.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="disease-sec" id="diseases">
+  <div class="container">
+    <div class="sec-eyebrow center">Detection Coverage</div>
+    <h2 class="sec-title center">10 Paddy Diseases Detected</h2>
+    <p class="sec-desc center">Our AI model is trained on thousands of leaf images to detect all major paddy diseases.</p>
+    <div class="disease-grid">
+      <div class="dcrd critical"><div class="dcrd-sev">⚠ Critical</div><div class="dcrd-name">Neck Blast</div><div class="dcrd-loss">Up to 80% yield loss</div></div>
+      <div class="dcrd critical"><div class="dcrd-sev">⚠ Critical</div><div class="dcrd-name">Tungro</div><div class="dcrd-loss">Up to 100% yield loss</div></div>
+      <div class="dcrd high"><div class="dcrd-sev">!!! High</div><div class="dcrd-name">Leaf Blast</div><div class="dcrd-loss">Can destroy entire crop</div></div>
+      <div class="dcrd high"><div class="dcrd-sev">!!! High</div><div class="dcrd-name">Bacterial Leaf Blight</div><div class="dcrd-loss">20–30% yield loss</div></div>
+      <div class="dcrd high"><div class="dcrd-sev">!!! High</div><div class="dcrd-name">Sheath Blight</div><div class="dcrd-loss">25–50% yield loss</div></div>
+      <div class="dcrd moderate"><div class="dcrd-sev">!! Moderate</div><div class="dcrd-name">Brown Spot</div><div class="dcrd-loss">Up to 45% yield loss</div></div>
+      <div class="dcrd moderate"><div class="dcrd-sev">!! Moderate</div><div class="dcrd-name">Leaf Scald</div><div class="dcrd-loss">Up to 15% yield loss</div></div>
+      <div class="dcrd moderate"><div class="dcrd-sev">!! Moderate</div><div class="dcrd-name">Rice Hispa</div><div class="dcrd-loss">10–30% yield loss</div></div>
+      <div class="dcrd low"><div class="dcrd-sev">! Low</div><div class="dcrd-name">Narrow Brown Spot</div><div class="dcrd-loss">Under 10% yield loss</div></div>
+      <div class="dcrd none"><div class="dcrd-sev">✓ Healthy</div><div class="dcrd-name">No Disease</div><div class="dcrd-loss">Crop is healthy</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">
+        <div class="logo-mark" style="width:28px;height:28px">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="17" fill="#052e16"/>
+            <path d="M18 5C18 5 10 10 10 19C10 23.8 13 27.5 18 29C23 27.5 26 23.8 26 19C26 10 18 5 18 5Z" fill="#4ade80"/>
+          </svg>
+        </div>
+        <span class="logo-name" style="color:#fff">PaddyGuard AI</span>
+      </div>
+      <p class="footer-tag">Protecting paddy farmers with AI-powered disease detection. Free for all farmers.</p>
+    </div>
+    <div class="footer-links">
+      <div class="fl-col">
+        <div class="fl-head">App</div>
+        <a href="#upload">Detect Disease</a>
+        <a href="#how">How It Works</a>
+        <a href="#diseases">10 Diseases</a>
+        <a href="/map">Find Shops</a>
+      </div>
+      <div class="fl-col">
+        <div class="fl-head">Technology</div>
+        <a href="#">CNN Model</a>
+        <a href="#">Chemical DB</a>
+        <a href="#">Organic DB</a>
+        <a href="#">Google Maps</a>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 PaddyGuard AI · Built with CNN Deep Learning · Free for all farmers</div>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
