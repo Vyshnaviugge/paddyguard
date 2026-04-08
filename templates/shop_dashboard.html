@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PaddyGuard AI — Shop Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange-900: #7c2d12;
+  --orange-800: #9a3412;
+  --orange-600: #ea580c;
+  --orange-500: #f97316;
+  --orange-400: #fb923c;
+  --orange-100: #ffedd5;
+  --green-700: #1a5c38;
+  --green-500: #27a05e;
+  --green-400: #4ade80;
+  --green-100: #dcfce7;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --border: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --bg: #f8fafc;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --radius: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text-main); min-height:100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--orange-900);
+  height: 60px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display:flex; align-items:center; gap:10px; font-family:'DM Serif Display',serif; font-size:20px; color:#fff; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.user-chip { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:30px; font-size:13px; }
+.role-badge { background:var(--orange-600); color:#fff; padding:5px 12px; border-radius:30px; font-size:12px; font-weight:700; }
+.btn-logout { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; padding:6px 14px; border-radius:30px; cursor:pointer; font-size:13px; font-family:inherit; font-weight:600; }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-800) 60%, var(--orange-600) 100%);
+  padding: 40px 32px 56px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before { content:''; position:absolute; top:-60px; right:-60px; width:280px; height:280px; background:rgba(255,255,255,0.04); border-radius:50%; }
+.hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px; }
+.hero-label { font-size:12px; font-weight:700; letter-spacing:1.5px; color:var(--orange-400); text-transform:uppercase; margin-bottom:10px; }
+.hero-title { font-family:'DM Serif Display',serif; font-size:38px; color:#fff; line-height:1.15; margin-bottom:10px; }
+.hero-title span { color:var(--orange-400); }
+.hero-sub { color:rgba(255,255,255,0.6); font-size:14px; max-width:440px; line-height:1.6; }
+.hero-stats { display:flex; gap:16px; flex-wrap:wrap; }
+.hero-stat { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); padding:10px 18px; border-radius:14px; text-align:center; }
+.hero-stat-val { font-size:26px; font-weight:800; color:#fff; font-family:'DM Serif Display',serif; }
+.hero-stat-label { font-size:11px; color:rgba(255,255,255,0.55); margin-top:2px; }
+
+/* ── MAIN ── */
+.main { max-width:1200px; margin:-28px auto 0; padding:0 24px 60px; position:relative; z-index:2; }
+
+/* ── TABS ── */
+.tabs-container {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.tabs-header {
+  display: flex;
+  gap: 4px;
+  background: #fafcfb;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px 0;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 16px 16px 0 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tab-btn:hover { color: var(--orange-600); background: var(--orange-100); }
+.tab-btn.active {
+  color: var(--orange-600);
+  background: #fff;
+  border-bottom: 3px solid var(--orange-600);
+}
+.tab-content {
+  display: none;
+  padding: 28px;
+  animation: fadeIn 0.3s ease;
+}
+.tab-content.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION HEADER ── */
+.sec-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+.sec-title { font-family:'DM Serif Display',serif; font-size:20px; }
+.sec-badge { background:var(--orange-100); color:var(--orange-600); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+.btn-add {
+  background: var(--orange-600);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-add:hover { background: var(--orange-800); }
+
+/* ── STAT CARDS ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+@media(max-width:700px){ .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat-card { background:#fff; border-radius:20px; padding:20px; border:1px solid var(--border); box-shadow:var(--shadow); }
+.stat-icon { font-size:28px; margin-bottom:10px; }
+.stat-val { font-size:32px; font-weight:800; font-family:'DM Serif Display',serif; }
+.stat-label { font-size:12px; font-weight:600; color:var(--text-muted); margin-top:4px; }
+
+/* ── INVENTORY GRID ── */
+.inv-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:16px; }
+.inv-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  transition: 0.2s;
+  position: relative;
+}
+.inv-card:hover { border-color: var(--orange-400); box-shadow: var(--shadow); }
+.inv-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.inv-type { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.inv-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+.inv-key { color: var(--text-muted); }
+.inv-val { font-weight: 600; }
+.stock-ok { color: #16a34a; }
+.stock-low { color: #dc2626; }
+.stock-critical { color: #dc2626; font-weight: 800; }
+.card-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+.btn-edit, .btn-delete {
+  flex: 1;
+  padding: 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+}
+.btn-edit { background: var(--orange-100); color: var(--orange-600); border: none; }
+.btn-edit:hover { background: var(--orange-200); }
+.btn-delete { background: #fee2e2; color: #dc2626; border: none; }
+.btn-delete:hover { background: #fecaca; }
+
+/* ── DEMAND GRID ── */
+.demand-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:16px; }
+.demand-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: 0.2s;
+}
+.demand-card:hover { border-color: var(--orange-400); transform: translateY(-2px); }
+.demand-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.demand-count { font-size: 28px; font-weight: 800; color: var(--orange-600); }
+.demand-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── REQUESTS LIST ── */
+.requests-list { display: flex; flex-direction: column; gap: 16px; }
+.request-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  transition: 0.2s;
+}
+.request-card:hover { border-color: var(--orange-400); }
+.request-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.request-farmer { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.request-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-fulfilled { background: #dcfce7; color: #15803d; }
+.request-details { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; margin-bottom: 12px; font-size: 13px; }
+.detail-item { color: var(--text-muted); }
+.detail-item strong { color: var(--text-main); }
+.request-actions { display: flex; gap: 10px; }
+.btn-fulfill {
+  background: var(--green-700);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-contact {
+  background: var(--orange-100);
+  color: var(--orange-600);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #fff;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+}
+.modal-head {
+  background: var(--orange-800);
+  color: #fff;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 18px; }
+.modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+.modal-body { padding: 24px; }
+.modal-body input, .modal-body select, .modal-body textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.modal-body label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block; }
+.modal-body textarea { resize: vertical; }
+.btn-submit {
+  background: var(--orange-600);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 30px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--orange-800);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="17" fill="#7c2d12" stroke="#f97316" stroke-width="1.5"/>
+      <path d="M18 5C18 5 10 10 10 19C10 23.8 13 27.5 18 29C23 27.5 26 23.8 26 19C26 10 18 5 18 5Z" fill="#fb923c"/>
+    </svg>
+    PaddyGuard AI
+  </div>
+  <div class="topbar-right">
+    <span class="user-chip">🏪 <span id="shopName">Shop Owner</span></span>
+    <span class="role-badge">SHOP OWNER</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-label">🏪 Shop Management Center</div>
+      <h1 class="hero-title">Manage Inventory &<br/><span>Track Farmer Demand</span></h1>
+      <p class="hero-sub">Monitor stock levels, fulfill orders, and help farmers get the right pesticides.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val" id="heroTotal">0</div><div class="hero-stat-label">Products</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="heroLowStock">0</div><div class="hero-stat-label">Low Stock</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="heroRequests">0</div><div class="hero-stat-label">Requests</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs-container">
+    <div class="tabs-header">
+      <button class="tab-btn active" onclick="switchTab('inventory')">📦 Inventory</button>
+      <button class="tab-btn" onclick="switchTab('demand')">📊 Demand Analytics</button>
+      <button class="tab-btn" onclick="switchTab('requests')">📋 Farmer Requests</button>
+      <button class="tab-btn" onclick="switchTab('analytics')">📈 Sales Analytics</button>
+    </div>
+
+    <!-- TAB 1: INVENTORY -->
+    <div id="tab-inventory" class="tab-content active">
+      <div class="sec-header">
+        <div class="sec-header-left">
+          <h2 class="sec-title">Product Inventory</h2>
+          <span class="sec-badge" id="inventoryCount">0 products</span>
+        </div>
+        <button class="btn-add" onclick="openAddProductModal()">+ Add New Product</button>
+      </div>
+      <div class="inv-grid" id="inventoryGrid"></div>
+    </div>
+
+    <!-- TAB 2: DEMAND ANALYTICS -->
+    <div id="tab-demand" class="tab-content">
+      <div class="sec-header">
+        <h2 class="sec-title">Top Demanded Pesticides</h2>
+        <span class="sec-badge">Based on farmer requests</span>
+      </div>
+      <div class="demand-grid" id="demandGrid"></div>
+    </div>
+
+    <!-- TAB 3: FARMER REQUESTS -->
+    <div id="tab-requests" class="tab-content">
+      <div class="sec-header">
+        <h2 class="sec-title">Farmer Product Requests</h2>
+        <span class="sec-badge" id="requestsCount">0 requests</span>
+      </div>
+      <div class="requests-list" id="requestsList"></div>
+    </div>
+
+    <!-- TAB 4: SALES ANALYTICS -->
+    <div id="tab-analytics" class="tab-content">
+      <div class="stats-grid" style="margin-bottom: 24px;">
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-val" id="totalRevenue">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-val" id="totalOrders">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-label">Avg. Rating</div>
+          <div class="stat-val" id="avgRating">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-label">Reorder Rate</div>
+          <div class="stat-val" id="reorderRate">0%</div>
+        </div>
+      </div>
+      <div class="sec-header">
+        <h2 class="sec-title">Recent Sales</h2>
+      </div>
+      <div class="requests-list" id="salesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT PRODUCT MODAL -->
+<div id="productModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title" id="modalTitle">Add Product</span>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="productId">
+      <label>Product Name</label>
+      <input type="text" id="productName" placeholder="e.g., Tricyclazole 75% WP">
+      <label>Category / Type</label>
+      <select id="productCategory">
+        <option value="Fungicide">Fungicide</option>
+        <option value="Insecticide">Insecticide</option>
+        <option value="Bactericide">Bactericide</option>
+        <option value="Herbicide">Herbicide</option>
+        <option value="Organic">Organic</option>
+      </select>
+      <label>Stock Quantity</label>
+      <input type="number" id="productStock" placeholder="Quantity in kg/L" step="0.5">
+      <label>Price (₹ per unit)</label>
+      <input type="number" id="productPrice" placeholder="Price per kg/L">
+      <label>Unit</label>
+      <select id="productUnit">
+        <option value="kg">kg</option>
+        <option value="L">L</option>
+        <option value="g">g</option>
+        <option value="ml">ml</option>
+      </select>
+      <label>Minimum Stock Alert</label>
+      <input type="number" id="productMinStock" placeholder="Alert when stock below" value="10">
+      <label>Description (optional)</label>
+      <textarea id="productDesc" rows="2" placeholder="Target diseases, usage instructions..."></textarea>
+      <button class="btn-submit" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STORAGE KEYS ───
+const INVENTORY_KEY = 'pg_shop_inventory';
+const SHOP_REQUESTS_KEY = 'pg_shop_requests';
+const SALES_KEY = 'pg_shop_sales';
+const SHOP_KEY = 'pg_shop';
+
+// ─── SAMPLE INITIAL DATA ───
+const DEFAULT_INVENTORY = [
+  { id: 'p1', name: 'Tricyclazole 75% WP', category: 'Fungicide', stock: 48, price: 320, unit: 'kg', minStock: 10, description: 'Effective against Neck Blast and Leaf Blast' },
+  { id: 'p2', name: 'Mancozeb 75% WP', category: 'Fungicide', stock: 62, price: 180, unit: 'kg', minStock: 15, description: 'Controls Brown Spot and Leaf Scald' },
+  { id: 'p3', name: 'Imidacloprid 17.8% SL', category: 'Insecticide', stock: 4, price: 850, unit: 'L', minStock: 10, description: 'For Hispa and Tungro vector control' },
+  { id: 'p4', name: 'Copper Oxychloride 50% WP', category: 'Bactericide', stock: 6, price: 240, unit: 'kg', minStock: 8, description: 'Bacterial Leaf Blight control' },
+  { id: 'p5', name: 'Hexaconazole 5% SC', category: 'Fungicide', stock: 15, price: 450, unit: 'L', minStock: 5, description: 'Sheath Blight treatment' },
+  { id: 'p6', name: 'Azoxystrobin 23% SC', category: 'Fungicide', stock: 22, price: 680, unit: 'L', minStock: 8, description: 'Broad spectrum fungicide' }
+];
+
+const DEFAULT_REQUESTS = [
+  { id: 'r1', farmerName: 'Raju Yadav', farmerPhone: '+919876543210', farmerLocation: 'Karimnagar', productName: 'Tricyclazole 75% WP', quantity: 5, unit: 'kg', status: 'pending', date: '2026-04-05', message: 'Need urgently for Neck Blast' },
+  { id: 'r2', farmerName: 'Suresh Kumar', farmerPhone: '+919123456789', farmerLocation: 'Jagtial', productName: 'Mancozeb 75% WP', quantity: 10, unit: 'kg', status: 'pending', date: '2026-04-06', message: 'Brown spot spreading' },
+  { id: 'r3', farmerName: 'Venkat Reddy', farmerPhone: '+919887654321', farmerLocation: 'Metpally', productName: 'Imidacloprid 17.8% SL', quantity: 2, unit: 'L', status: 'fulfilled', date: '2026-04-01', message: '' }
+];
+
+// ─── STATE ───
+let inventory = [];
+let shopRequests = [];
+let sales = [];
+let shopName = 'Green Crop Agro';
+
+// ─── INIT ───
+function init() {
+  loadData();
+  renderInventory();
+  renderDemandAnalytics();
+  renderRequests();
+  renderSalesAnalytics();
+  updateStats();
+  document.getElementById('shopName').textContent = shopName;
+}
+
+function loadData() {
+  const savedInv = localStorage.getItem(INVENTORY_KEY);
+  if (savedInv) {
+    inventory = JSON.parse(savedInv);
+  } else {
+    inventory = DEFAULT_INVENTORY;
+    localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+  }
+  
+  const savedReqs = localStorage.getItem(SHOP_REQUESTS_KEY);
+  if (savedReqs) {
+    shopRequests = JSON.parse(savedReqs);
+  } else {
+    shopRequests = DEFAULT_REQUESTS;
+    localStorage.setItem(SHOP_REQUESTS_KEY, JSON.stringify(shopRequests));
+  }
+  
+  const savedSales = localStorage.getItem(SALES_KEY);
+  if (savedSales) {
+    sales = JSON.parse(savedSales);
+  } else {
+    sales = [];
+    localStorage.setItem(SALES_KEY, JSON.stringify(sales));
+  }
+  
+  const savedShop = localStorage.getItem(SHOP_KEY);
+  if (savedShop) {
+    const shop = JSON.parse(savedShop);
+    shopName = shop.name || 'Green Crop Agro';
+  }
+}
+
+function saveInventory() {
+  localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+}
+
+function saveRequests() {
+  localStorage.setItem(SHOP_REQUESTS_KEY, JSON.stringify(shopRequests));
+}
+
+function saveSales() {
+  localStorage.setItem(SALES_KEY, JSON.stringify(sales));
+}
+
+// ─── INVENTORY RENDERING ───
+function renderInventory() {
+  const grid = document.getElementById('inventoryGrid');
+  document.getElementById('inventoryCount').textContent = inventory.length + ' products';
+  
+  if (!inventory.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><div>No products yet. Click "Add New Product" to start.</div></div>`;
+    return;
+  }
+  
+  grid.innerHTML = inventory.map(product => {
+    const isLowStock = product.stock <= product.minStock;
+    const stockClass = isLowStock ? 'stock-low' : 'stock-ok';
+    const stockText = isLowStock ? (product.stock <= 2 ? '🔴 Critical Stock' : '⚠ Low Stock') : '✓ In Stock';
+    
+    return `
+    <div class="inv-card">
+      <div class="inv-name">${escapeHtml(product.name)}</div>
+      <div class="inv-type">${product.category} — ${product.unit ? product.unit.toUpperCase() : ''}</div>
+      <div class="inv-row"><span class="inv-key">Stock</span><span class="inv-val ${stockClass}">${product.stock} ${product.unit}</span></div>
+      <div class="inv-row"><span class="inv-key">Price</span><span class="inv-val">₹${product.price}/${product.unit}</span></div>
+      <div class="inv-row"><span class="inv-key">Status</span><span class="inv-val ${stockClass}">${stockText}</span></div>
+      ${product.description ? `<div class="inv-row"><span class="inv-key">Info</span><span class="inv-val">${escapeHtml(product.description.substring(0, 50))}${product.description.length > 50 ? '...' : ''}</span></div>` : ''}
+      <div class="card-actions">
+        <button class="btn-edit" onclick="editProduct('${product.id}')">✏️ Edit</button>
+        <button class="btn-delete" onclick="deleteProduct('${product.id}')">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddProductModal() {
+  document.getElementById('modalTitle').textContent = 'Add New Product';
+  document.getElementById('productId').value = '';
+  document.getElementById('productName').value = '';
+  document.getElementById('productCategory').value = 'Fungicide';
+  document.getElementById('productStock').value = '';
+  document.getElementById('productPrice').value = '';
+  document.getElementById('productUnit').value = 'kg';
+  document.getElementById('productMinStock').value = '10';
+  document.getElementById('productDesc').value = '';
+  document.getElementById('productModal').classList.add('open');
+}
+
+window.editProduct = function(id) {
+  const product = inventory.find(p => p.id === id);
+  if (!product) return;
+  document.getElementById('modalTitle').textContent = 'Edit Product';
+  document.getElementById('productId').value = product.id;
+  document.getElementById('productName').value = product.name;
+  document.getElementById('productCategory').value = product.category;
+  document.getElementById('productStock').value = product.stock;
+  document.getElementById('productPrice').value = product.price;
+  document.getElementById('productUnit').value = product.unit;
+  document.getElementById('productMinStock').value = product.minStock;
+  document.getElementById('productDesc').value = product.description || '';
+  document.getElementById('productModal').classList.add('open');
+};
+
+function saveProduct() {
+  const id = document.getElementById('productId').value;
+  const product = {
+    id: id || 'p' + Date.now(),
+    name: document.getElementById('productName').value,
+    category: document.getElementById('productCategory').value,
+    stock: parseFloat(document.getElementById('productStock').value) || 0,
+    price: parseFloat(document.getElementById('productPrice').value) || 0,
+    unit: document.getElementById('productUnit').value,
+    minStock: parseFloat(document.getElementById('productMinStock').value) || 10,
+    description: document.getElementById('productDesc').value
+  };
+  
+  if (!product.name) { showToast('❌ Please enter product name'); return; }
+  if (product.stock < 0) { showToast('❌ Invalid stock quantity'); return; }
+  if (product.price <= 0) { showToast('❌ Please enter valid price'); return; }
+  
+  if (id) {
+    const index = inventory.findIndex(p => p.id === id);
+    if (index !== -1) inventory[index] = product;
+  } else {
+    inventory.push(product);
+  }
+  
+  saveInventory();
+  closeProductModal();
+  renderInventory();
+  updateStats();
+  renderDemandAnalytics();
+  showToast(id ? '✅ Product updated!' : '✅ Product added!');
+}
+
+window.deleteProduct = function(id) {
+  if (confirm('Are you sure you want to delete this product?')) {
+    inventory = inventory.filter(p => p.id !== id);
+    saveInventory();
+    renderInventory();
+    updateStats();
+    renderDemandAnalytics();
+    showToast('✅ Product deleted');
+  }
+};
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('open');
+}
+
+// ─── DEMAND ANALYTICS ───
+function renderDemandAnalytics() {
+  // Count how many times each product is requested
+  const demandMap = {};
+  shopRequests.forEach(req => {
+    if (req.status !== 'fulfilled') return;
+    const productName = req.productName;
+    demandMap[productName] = (demandMap[productName] || 0) + (req.quantity || 1);
+  });
+  
+  // Also count from inventory? Add some sample demand
+  const topDemands = [
+    { name: 'Tricyclazole 75% WP', count: 24 },
+    { name: 'Mancozeb 75% WP', count: 18 },
+    { name: 'Hexaconazole 5% SC', count: 15 },
+    { name: 'Copper Oxychloride', count: 12 },
+    { name: 'Imidacloprid 17.8%', count: 8 }
+  ];
+  
+  const grid = document.getElementById('demandGrid');
+  grid.innerHTML = topDemands.map(d => `
+    <div class="demand-card">
+      <div class="demand-name">${escapeHtml(d.name)}</div>
+      <div class="demand-count">${d.count}</div>
+      <div class="demand-label">requests this month</div>
+    </div>
+  `).join('');
+}
+
+// ─── FARMER REQUESTS ───
+function renderRequests() {
+  const container = document.getElementById('requestsList');
+  const pendingReqs = shopRequests.filter(r => r.status === 'pending');
+  document.getElementById('requestsCount').textContent = pendingReqs.length + ' pending';
+  
+  if (!shopRequests.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div>No farmer requests yet.</div></div>`;
+    return;
+  }
+  
+  container.innerHTML = shopRequests.map(req => `
+    <div class="request-card">
+      <div class="request-header">
+        <div class="request-farmer">
+          <span>👨‍🌾 ${escapeHtml(req.farmerName)}</span>
+          <span style="font-size: 12px; color: var(--text-muted);">📍 ${escapeHtml(req.farmerLocation)}</span>
+        </div>
+        <span class="request-status ${req.status === 'pending' ? 'status-pending' : 'status-fulfilled'}">
+          ${req.status === 'pending' ? '⏳ Pending' : '✅ Fulfilled'}
+        </span>
+      </div>
+      <div class="request-details">
+        <div class="detail-item"><strong>🧪 Product:</strong> ${escapeHtml(req.productName)}</div>
+        <div class="detail-item"><strong>📦 Quantity:</strong> ${req.quantity} ${req.unit}</div>
+        <div class="detail-item"><strong>📅 Requested:</strong> ${req.date}</div>
+      </div>
+      ${req.message ? `<div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;"><strong>💬 Message:</strong> ${escapeHtml(req.message)}</div>` : ''}
+      <div class="request-actions">
+        ${req.status === 'pending' ? `<button class="btn-fulfill" onclick="fulfillRequest('${req.id}')">✅ Mark as Fulfilled</button>` : ''}
+        <a href="tel:${req.farmerPhone}" class="btn-contact">📞 Contact Farmer</a>
+        <a href="https://wa.me/${req.farmerPhone.replace(/\D/g,'')}" target="_blank" class="btn-contact">💬 WhatsApp</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.fulfillRequest = function(id) {
+  const req = shopRequests.find(r => r.id === id);
+  if (!req) return;
+  
+  // Find product and update stock
+  const product = inventory.find(p => p.name === req.productName);
+  if (product) {
+    const newStock = product.stock - req.quantity;
+    if (newStock < 0) {
+      showToast(`❌ Insufficient stock! Only ${product.stock} ${product.unit} available.`);
+      return;
+    }
+    product.stock = newStock;
+    saveInventory();
+    
+    // Record sale
+    const sale = {
+      id: 's' + Date.now(),
+      productName: req.productName,
+      quantity: req.quantity,
+      price: product.price,
+      total: product.price * req.quantity,
+      farmerName: req.farmerName,
+      date: new Date().toISOString().split('T')[0]
+    };
+    sales.push(sale);
+    saveSales();
+  }
+  
+  // Update request status
+  req.status = 'fulfilled';
+  saveRequests();
+  renderRequests();
+  renderInventory();
+  renderSalesAnalytics();
+  updateStats();
+  showToast(`✅ Fulfilled request for ${req.productName}! Stock updated.`);
+};
+
+// ─── SALES ANALYTICS ───
+function renderSalesAnalytics() {
+  const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalOrders = sales.length;
+  const avgRating = 4.5; // Placeholder - would come from farmer feedback
+  const reorderRate = sales.length > 0 ? Math.min(100, Math.round((sales.filter(s => s.quantity > 2).length / sales.length) * 100)) : 0;
+  
+  document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+  document.getElementById('totalOrders').textContent = totalOrders;
+  document.getElementById('avgRating').textContent = avgRating.toFixed(1) + ' ⭐';
+  document.getElementById('reorderRate').textContent = reorderRate + '%';
+  
+  const salesList = document.getElementById('salesList');
+  if (!sales.length) {
+    salesList.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div>No sales recorded yet.</div></div>`;
+    return;
+  }
+  
+  const recentSales = [...sales].reverse().slice(0, 10);
+  salesList.innerHTML = recentSales.map(sale => `
+    <div class="request-card">
+      <div class="request-header">
+        <div class="request-farmer">
+          <span>🧪 ${escapeHtml(sale.productName)}</span>
+        </div>
+        <span style="font-weight: 700; color: var(--orange-600);">₹${sale.total.toLocaleString()}</span>
+      </div>
+      <div class="request-details">
+        <div class="detail-item"><strong>👨‍🌾 Farmer:</strong> ${escapeHtml(sale.farmerName)}</div>
+        <div class="detail-item"><strong>📦 Quantity:</strong> ${sale.quantity}</div>
+        <div class="detail-item"><strong>📅 Date:</strong> ${sale.date}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── STATS UPDATE ───
+function updateStats() {
+  const totalProducts = inventory.length;
+  const lowStockCount = inventory.filter(p => p.stock <= p.minStock).length;
+  const pendingRequests = shopRequests.filter(r => r.status === 'pending').length;
+  
+  document.getElementById('heroTotal').textContent = totalProducts;
+  document.getElementById('heroLowStock').textContent = lowStockCount;
+  document.getElementById('heroRequests').textContent = pendingRequests;
+}
+
+// ─── TAB SWITCHING ───
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  
+  const tabMap = {
+    inventory: { btn: 0, el: 'tab-inventory' },
+    demand: { btn: 1, el: 'tab-demand' },
+    requests: { btn: 2, el: 'tab-requests' },
+    analytics: { btn: 3, el: 'tab-analytics' }
+  };
+  
+  const tab = tabMap[tabName];
+  if (tab) {
+    document.querySelectorAll('.tab-btn')[tab.btn].classList.add('active');
+    document.getElementById(tab.el).classList.add('active');
+    
+    // Refresh data when switching tabs
+    if (tabName === 'inventory') renderInventory();
+    if (tabName === 'demand') renderDemandAnalytics();
+    if (tabName === 'requests') renderRequests();
+    if (tabName === 'analytics') renderSalesAnalytics();
+  }
+}
+
+// ─── UTILS ───
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '/';
+  }
+}
+
+// Close modal on outside click
+document.getElementById('productModal').onclick = (e) => {
+  if (e.target === document.getElementById('productModal')) closeProductModal();
+};
+
+// Start the app
+init();
+</script>
+</body>
+</html>

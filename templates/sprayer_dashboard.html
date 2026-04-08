@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PaddyGuard AI — Sprayer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --blue-900: #0f1f3d;
+  --blue-800: #1e3a6e;
+  --blue-600: #2563eb;
+  --blue-400: #60a5fa;
+  --blue-100: #dbeafe;
+  --green-700: #1a5c38;
+  --green-500: #27a05e;
+  --green-400: #4ade80;
+  --green-100: #dcfce7;
+  --green-50:  #f0fdf4;
+  --amber:  #f59e0b;
+  --red:    #ef4444;
+  --purple: #7c3aed;
+  --border: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --bg: #f8fafc;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --radius: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text-main); min-height:100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--blue-900);
+  height: 60px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display:flex; align-items:center; gap:10px; font-family:'DM Serif Display',serif; font-size:20px; color:#fff; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.user-chip { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:30px; font-size:13px; }
+.role-badge { background:var(--blue-600); color:#fff; padding:5px 12px; border-radius:30px; font-size:12px; font-weight:700; }
+.btn-logout { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; padding:6px 14px; border-radius:30px; cursor:pointer; font-size:13px; font-family:inherit; font-weight:600; }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 60%, #1e40af 100%);
+  padding: 44px 32px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before { content:''; position:absolute; top:-60px; right:-60px; width:280px; height:280px; background:rgba(255,255,255,0.04); border-radius:50%; }
+.hero-inner { max-width:1200px; margin:0 auto; position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px; }
+.hero-left {}
+.hero-label { font-size:12px; font-weight:700; letter-spacing:1.5px; color:var(--blue-400); text-transform:uppercase; margin-bottom:10px; }
+.hero-title { font-family:'DM Serif Display',serif; font-size:38px; color:#fff; line-height:1.15; margin-bottom:10px; }
+.hero-title span { color:var(--blue-400); }
+.hero-sub { color:rgba(255,255,255,0.6); font-size:14px; max-width:440px; line-height:1.6; }
+.hero-stats { display:flex; gap:16px; flex-wrap:wrap; }
+.hero-stat { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); padding:10px 18px; border-radius:14px; text-align:center; }
+.hero-stat-val { font-size:26px; font-weight:800; color:#fff; font-family:'DM Serif Display',serif; }
+.hero-stat-label { font-size:11px; color:rgba(255,255,255,0.55); margin-top:2px; }
+
+/* ── MAIN ── */
+.main { max-width:1200px; margin:-28px auto 0; padding:0 24px 60px; position:relative; z-index:2; }
+
+/* ── TABS ── */
+.tabs-container {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.tabs-header {
+  display: flex;
+  gap: 4px;
+  background: #fafcfb;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px 0;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 16px 16px 0 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tab-btn:hover { color: var(--blue-600); background: var(--blue-100); }
+.tab-btn.active {
+  color: var(--blue-600);
+  background: #fff;
+  border-bottom: 3px solid var(--blue-600);
+}
+.tab-content {
+  display: none;
+  padding: 28px;
+  animation: fadeIn 0.3s ease;
+}
+.tab-content.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION ── */
+.sec-row { display:flex; align-items:center; justify-content:space-between; margin:0 0 16px; flex-wrap:wrap; gap:12px; }
+.sec-left { display:flex; align-items:center; gap:12px; }
+.sec-title { font-family:'DM Serif Display',serif; font-size:22px; }
+.sec-badge { background:var(--blue-100); color:var(--blue-600); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+.refresh-btn { background:#fff; border:1px solid var(--border); padding:7px 16px; border-radius:20px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s; }
+
+/* ── STAT CARDS ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+@media(max-width:700px){ .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat-card { background:#fff; border-radius:20px; padding:20px; border:1px solid var(--border); box-shadow:var(--shadow); }
+.stat-icon { font-size:24px; margin-bottom:10px; }
+.stat-val { font-size:32px; font-weight:800; font-family:'DM Serif Display',serif; }
+.stat-label { font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+
+/* ── PROFILE CARD ── */
+.profile-card {
+  background: #fff;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.profile-header {
+  background: linear-gradient(135deg, var(--blue-900), var(--blue-800));
+  color: #fff;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4ade80, #27a05e);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+}
+.profile-info h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 4px; }
+.profile-info p { color: rgba(255,255,255,0.7); font-size: 13px; }
+.profile-body { padding: 24px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media(max-width:700px){ .form-grid { grid-template-columns: 1fr; } }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 14px;
+  transition: 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--blue-600);
+}
+.availability-toggle {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+}
+.avail-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.avail-option input { width: 20px; height: 20px; cursor: pointer; }
+.avail-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 10px;
+}
+.avail-badge.available { background: #dcfce7; color: #15803d; }
+.avail-badge.busy { background: #fee2e2; color: #dc2626; }
+.btn-save {
+  background: var(--blue-600);
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 8px;
+}
+.btn-save:hover { background: var(--blue-800); }
+.disease-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.disease-tag {
+  background: var(--green-50);
+  border: 1px solid #bbf7d0;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-700);
+  cursor: pointer;
+  transition: 0.2s;
+}
+.disease-tag.selected {
+  background: var(--green-700);
+  color: #fff;
+  border-color: var(--green-700);
+}
+.disease-tag:hover { transform: scale(1.02); }
+
+/* ── FILTER BAR ── */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.filter-btn {
+  background:#fff;
+  border:1px solid var(--border);
+  padding:7px 16px;
+  border-radius:30px;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+}
+.filter-btn.active { background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
+
+/* ── REQUEST CARDS ── */
+.requests-list { display:flex; flex-direction:column; gap:20px; }
+.req-card {
+  background:#fff;
+  border-radius:24px;
+  border:1px solid var(--border);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  transition:0.2s;
+}
+.req-card:hover { box-shadow:0 8px 32px rgba(0,0,0,0.08); border-color:#bfdbfe; }
+.req-card.new-req { border-left:4px solid var(--blue-600); animation: slideIn 0.4s ease; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+.req-header {
+  padding:18px 24px;
+  background:#fafbff;
+  border-bottom:1px solid #f1f5f9;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.farmer-row { display:flex; align-items:center; gap:14px; }
+.avatar {
+  width:46px; height:46px;
+  background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+  border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:#fff; font-weight:800;
+}
+.farmer-name { font-size:17px; font-weight:700; }
+.farmer-meta { font-size:12px; color:var(--text-muted); margin-top:2px; }
+.req-badges { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.sev-badge { padding:5px 14px; border-radius:30px; font-size:12px; font-weight:700; }
+.sev-critical { background:#f3e8ff; color:#7c3aed; }
+.sev-high     { background:#fee2e2; color:#dc2626; }
+.sev-moderate { background:#fff7ed; color:#c2410c; }
+.sev-low      { background:#fefce8; color:#a16207; }
+.sev-healthy  { background:#dcfce7; color:#15803d; }
+.new-tag { background:#dbeafe; color:#1d4ed8; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.status-tag { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; }
+.st-pending  { background:#fef3c7; color:#d97706; }
+.st-accepted { background:#dcfce7; color:#15803d; }
+.st-done     { background:#dbeafe; color:#1d4ed8; }
+.st-declined { background:#fee2e2; color:#dc2626; }
+
+.req-body { padding:20px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:680px){ .req-body{ grid-template-columns:1fr; } }
+
+.info-block { }
+.info-block-title { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.disease-pill { font-size:18px; font-weight:800; color:var(--blue-800); margin-bottom:6px; }
+.detail-row { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted); margin-bottom:6px; }
+.pest-list { }
+.pest-item { background:#f8fafc; border-radius:12px; padding:10px 12px; margin-bottom:8px; border-left:3px solid var(--blue-600); }
+.pest-name { font-weight:700; font-size:13px; }
+.pest-meta { font-size:11px; color:var(--text-muted); margin-top:3px; }
+.organic-rec { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:10px 12px; font-size:12px; margin-top:8px; }
+
+.action-col { display:flex; flex-direction:column; gap:10px; }
+.dist-box {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border:1px solid #bfdbfe;
+  border-radius:16px;
+  padding:14px 16px;
+}
+.dist-val { font-size:26px; font-weight:800; color:var(--blue-600); font-family:'DM Serif Display',serif; }
+.dist-sub { font-size:12px; color:var(--text-muted); }
+.action-btns { display:flex; flex-direction:column; gap:8px; margin-top:auto; }
+.btn-accept {
+  background: var(--green-700);
+  color:#fff; border:none;
+  padding:12px; border-radius:14px;
+  font-family:inherit; font-size:14px; font-weight:700;
+  cursor:pointer; transition:0.2s; text-align:center;
+}
+.btn-accept:hover { background:var(--green-500); }
+.btn-accept:disabled { background:#aaa; cursor:not-allowed; }
+.btn-done {
+  background:#eff6ff; color:var(--blue-600);
+  border:1px solid #bfdbfe;
+  padding:10px; border-radius:14px;
+  font-family:inherit; font-size:13px; font-weight:700;
+  cursor:pointer; transition:0.2s;
+}
+.btn-done:hover { background:#dbeafe; }
+.btn-decline {
+  background:#fff1f2; color:#dc2626;
+  border:1px solid #fecaca;
+  padding:10px; border-radius:14px;
+  font-family:inherit; font-size:13px; font-weight:600;
+  cursor:pointer; transition:0.2s;
+}
+.contact-btns { display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+.btn-call { background:#f0fdf4; color:var(--green-700); border:1px solid #bbf7d0; padding:8px 14px; border-radius:30px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+.btn-maps { background:#eff6ff; color:var(--blue-600); border:1px solid #bfdbfe; padding:8px 14px; border-radius:30px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+
+/* ── EMPTY ── */
+.empty-state { text-align:center; padding:64px 24px; background:#fff; border-radius:24px; border:1px solid var(--border); }
+.empty-icon { font-size:52px; margin-bottom:12px; }
+.empty-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+
+/* ── PROTOCOL ── */
+.protocol-card { background:#fff; border-radius:24px; border:1px solid var(--border); overflow:hidden; box-shadow:var(--shadow); margin-top:32px; }
+.protocol-header { background: linear-gradient(135deg, var(--blue-900), var(--blue-800)); color:#fff; padding:16px 24px; font-weight:700; font-size:15px; }
+.protocol-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:0; }
+.protocol-step { padding:18px 20px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); }
+.step-num { width:30px; height:30px; background:var(--blue-100); color:var(--blue-600); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; margin-bottom:8px; }
+.step-title { font-weight:700; font-size:14px; margin-bottom:4px; }
+.step-desc { font-size:12px; color:var(--text-muted); line-height:1.5; }
+
+/* ── MODAL ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:#fff; width:90%; max-width:520px; border-radius:28px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.25); }
+.modal-head { background:var(--blue-900); color:#fff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; }
+.modal-close { background:none; border:none; color:#fff; font-size:24px; cursor:pointer; }
+.modal-body { padding:24px; }
+.dist-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.dist-info-item { background:#f8fafc; border-radius:14px; padding:14px; }
+.maps-btn { display:block; background:var(--blue-600); color:#fff; text-align:center; padding:14px; border-radius:20px; text-decoration:none; font-weight:700; font-size:14px; margin-top:12px; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--blue-800); color:#fff; padding:14px 22px; border-radius:30px; font-size:14px; font-weight:600; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
+.toast.show { transform:translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🌿 PaddyGuard AI</div>
+  <div class="topbar-right">
+    <span class="user-chip">🌾 <span id="sprayerNameTop">Sprayer</span></span>
+    <span class="role-badge">SPRAYER PRO</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-label">🌾 Sprayer Control Center</div>
+      <h1 class="hero-title">Farmer Requests<br/><span>at a glance</span></h1>
+      <p class="hero-sub">View disease reports from farmers, get pesticide details, calculate distance and navigate to their fields.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val" id="heroTotal">0</div><div class="hero-stat-label">Total</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="heroPending">0</div><div class="hero-stat-label">Pending</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="heroAccepted">0</div><div class="hero-stat-label">Accepted</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="heroDone">0</div><div class="hero-stat-label">Completed</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- TABS -->
+  <div class="tabs-container">
+    <div class="tabs-header">
+      <button class="tab-btn active" onclick="switchTab('profile')">👤 My Profile & Availability</button>
+      <button class="tab-btn" onclick="switchTab('requests')">📋 Farmer Requests</button>
+      <button class="tab-btn" onclick="switchTab('protocol')">🛡️ Safety Protocol</button>
+    </div>
+
+    <!-- TAB 1: PROFILE -->
+    <div id="tab-profile" class="tab-content active">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar">R</div>
+          <div class="profile-info">
+            <h2 id="profileName">Sprayer Name</h2>
+            <p id="profileEmail">sprayer@example.com</p>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="sprayerFullName" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" id="sprayerPhone" placeholder="+91 XXXXXXXXXX">
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="sprayerEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+              <label>Service Area (City/Village)</label>
+              <input type="text" id="sprayerArea" placeholder="e.g., Karimnagar, Telangana">
+            </div>
+            <div class="form-group">
+              <label>Rate per Acre (₹)</label>
+              <input type="number" id="sprayerRate" placeholder="250" step="10">
+            </div>
+            <div class="form-group">
+              <label>Experience (years)</label>
+              <input type="number" id="sprayerExperience" placeholder="5">
+            </div>
+            <div class="form-group">
+              <label>Equipment/Sprayer Type</label>
+              <input type="text" id="sprayerEquipment" placeholder="e.g., Knapsack, Tractor-mounted">
+            </div>
+            <div class="form-group">
+              <label>Languages Spoken</label>
+              <input type="text" id="sprayerLanguages" placeholder="Telugu, Hindi, English">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>🌾 Diseases I can treat (select all that apply)</label>
+            <div class="disease-tags" id="diseaseTags">
+              <span class="disease-tag" data-disease="Neck Blast">Neck Blast</span>
+              <span class="disease-tag" data-disease="Bacterial Leaf Blight">Bacterial Leaf Blight</span>
+              <span class="disease-tag" data-disease="Brown Spot">Brown Spot</span>
+              <span class="disease-tag" data-disease="Sheath Blight">Sheath Blight</span>
+              <span class="disease-tag" data-disease="Leaf Blast">Leaf Blast</span>
+              <span class="disease-tag" data-disease="Leaf Scald">Leaf Scald</span>
+              <span class="disease-tag" data-disease="Tungro Virus">Tungro Virus</span>
+              <span class="disease-tag" data-disease="Rice Hispa">Rice Hispa</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>📅 Availability Status</label>
+            <div class="availability-toggle">
+              <label class="avail-option">
+                <input type="radio" name="availability" value="available" checked> ✅ Available for new jobs
+              </label>
+              <label class="avail-option">
+                <input type="radio" name="availability" value="busy"> ⏳ Busy / Not Available
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>📝 Bio / About You</label>
+            <textarea id="sprayerBio" rows="3" placeholder="Tell farmers about your experience, equipment, and service quality..."></textarea>
+          </div>
+
+          <button class="btn-save" onclick="saveSprayerProfile()">💾 Save Profile & Update Availability</button>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">
+            ⚡ Your profile will be visible to farmers in their area. When you mark yourself as "Available", farmers can book you.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: REQUESTS -->
+    <div id="tab-requests" class="tab-content">
+      <div class="sec-row">
+        <div class="sec-left">
+          <h2 class="sec-title">Farmer Requests</h2>
+          <span class="sec-badge" id="reqBadge">0 requests</span>
+        </div>
+        <button class="refresh-btn" onclick="loadRequests()">🔄 Refresh</button>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('pending', this)">⏳ Pending</button>
+        <button class="filter-btn" onclick="setFilter('accepted', this)">✅ Accepted</button>
+        <button class="filter-btn" onclick="setFilter('done', this)">🏆 Done</button>
+      </div>
+
+      <div id="requestsList" class="requests-list">
+        <div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No requests yet</div></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PROTOCOL -->
+    <div id="tab-protocol" class="tab-content">
+      <div class="protocol-card">
+        <div class="protocol-header">🌱 Follow every step for safe and effective pesticide application</div>
+        <div class="protocol-grid">
+          <div class="protocol-step"><div class="step-num">1</div><div class="step-title">Check Weather</div><div class="step-desc">Wind below 15 km/h. Never spray before rain or in extreme heat.</div></div>
+          <div class="protocol-step"><div class="step-num">2</div><div class="step-title">Wear Full PPE</div><div class="step-desc">Full-body suit, N95 mask, goggles, chemical-resistant gloves.</div></div>
+          <div class="protocol-step"><div class="step-num">3</div><div class="step-title">Mix Correctly</div><div class="step-desc">Follow exact dosage from the disease report. Never exceed recommended amounts.</div></div>
+          <div class="protocol-step"><div class="step-num">4</div><div class="step-title">Best Timing</div><div class="step-desc">Early morning 6–9 AM or evening 4–7 PM for best absorption.</div></div>
+          <div class="protocol-step"><div class="step-num">5</div><div class="step-title">After Spraying</div><div class="step-desc">Wash all gear, dispose containers responsibly, log the batch number.</div></div>
+          <div class="protocol-step"><div class="step-num">6</div><div class="step-title">Mark as Done</div><div class="step-desc">Always mark job complete in the app so the farmer is notified.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAP MODAL -->
+<div id="mapModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head"><span class="modal-title" id="modalTitle">Field Location</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="dist-info-grid">
+        <div class="dist-info-item"><div class="dist-info-label">📍 Location</div><div class="dist-info-val" id="modalFarmerCoords">—</div></div>
+        <div class="dist-info-item"><div class="dist-info-label">📏 Distance</div><div class="dist-info-val" id="modalDist">—</div></div>
+      </div>
+      <a href="#" id="modalMapsLink" target="_blank" class="maps-btn">🗺 Open Google Maps & Navigate</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STORAGE KEYS ───
+const BOOKINGS_KEY = 'pg_bookings';
+const SPRAYERS_KEY = 'pg_sprayers';
+
+// ─── STATE ───
+let sprayerLat = null, sprayerLng = null;
+let currentFilter = 'all';
+let allRequests = [];
+let selectedDiseases = [];
+
+// ─── DISEASE DB ───
+const DISEASE_DB = {
+  "Neck Blast": { severity:"Critical", chemical:[{name:"Tricyclazole 75% WP",dosage:"0.6g/L",frequency:"Twice"},{name:"Azoxystrobin",dosage:"1ml/L",frequency:"Once"}], organic:"Neem oil 5ml/L" },
+  "Bacterial Leaf Blight": { severity:"High", chemical:[{name:"Copper Oxychloride",dosage:"2g/L",frequency:"Every 12 days"}], organic:"Bacillus subtilis" },
+  "Brown Spot": { severity:"Moderate", chemical:[{name:"Mancozeb",dosage:"2g/L",frequency:"At tillering"}], organic:"Garlic extract" },
+  "Sheath Blight": { severity:"High", chemical:[{name:"Hexaconazole",dosage:"2ml/L",frequency:"At booting"}], organic:"Trichoderma viride" },
+  "Leaf Blast": { severity:"High", chemical:[{name:"Tricyclazole",dosage:"0.6g/L",frequency:"Twice"}], organic:"Neem oil" },
+  "Leaf Scald": { severity:"Moderate", chemical:[{name:"Mancozeb",dosage:"2.5g/L",frequency:"Twice"}], organic:"Neem extract" },
+  "Tungro Virus": { severity:"Critical", chemical:[{name:"Imidacloprid",dosage:"0.3ml/L",frequency:"Twice"}], organic:"Yellow sticky traps" },
+  "Rice Hispa": { severity:"Moderate", chemical:[{name:"Chlorpyrifos",dosage:"2ml/L",frequency:"Twice"}], organic:"Neem oil + NSKE" }
+};
+
+// ─── LOAD SPRAYER PROFILE ───
+function loadSprayerProfile() {
+  const saved = JSON.parse(localStorage.getItem(SPRAYERS_KEY) || '{}');
+  document.getElementById('sprayerFullName').value = saved.name || '';
+  document.getElementById('sprayerPhone').value = saved.phone || '';
+  document.getElementById('sprayerEmail').value = saved.email || '';
+  document.getElementById('sprayerArea').value = saved.area || '';
+  document.getElementById('sprayerRate').value = saved.rate || '';
+  document.getElementById('sprayerExperience').value = saved.experience || '';
+  document.getElementById('sprayerEquipment').value = saved.equipment || '';
+  document.getElementById('sprayerLanguages').value = saved.languages || '';
+  document.getElementById('sprayerBio').value = saved.bio || '';
+  
+  const availability = saved.available !== false;
+  document.querySelector(`input[name="availability"][value="${availability ? 'available' : 'busy'}"]`).checked = true;
+  
+  selectedDiseases = saved.diseases || [];
+  document.querySelectorAll('.disease-tag').forEach(tag => {
+    const disease = tag.dataset.disease;
+    if (selectedDiseases.includes(disease)) tag.classList.add('selected');
+    else tag.classList.remove('selected');
+  });
+  
+  // Update display
+  const name = saved.name || 'Sprayer';
+  document.getElementById('sprayerNameTop').textContent = name;
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = saved.email || 'sprayer@example.com';
+  document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+}
+
+// ─── SAVE SPRAYER PROFILE ───
+function saveSprayerProfile() {
+  const profile = {
+    name: document.getElementById('sprayerFullName').value,
+    phone: document.getElementById('sprayerPhone').value,
+    email: document.getElementById('sprayerEmail').value,
+    area: document.getElementById('sprayerArea').value,
+    rate: parseInt(document.getElementById('sprayerRate').value) || 250,
+    experience: document.getElementById('sprayerExperience').value,
+    equipment: document.getElementById('sprayerEquipment').value,
+    languages: document.getElementById('sprayerLanguages').value,
+    bio: document.getElementById('sprayerBio').value,
+    diseases: selectedDiseases,
+    available: document.querySelector('input[name="availability"]:checked').value === 'available',
+    lat: sprayerLat,
+    lng: sprayerLng,
+    rating: 4.5,
+    jobs_done: 0,
+    initials: (document.getElementById('sprayerFullName').value || 'S').charAt(0).toUpperCase()
+  };
+  
+  localStorage.setItem(SPRAYERS_KEY, JSON.stringify(profile));
+  document.getElementById('sprayerNameTop').textContent = profile.name || 'Sprayer';
+  document.getElementById('profileName').textContent = profile.name || 'Sprayer';
+  document.getElementById('profileEmail').textContent = profile.email || 'sprayer@example.com';
+  document.getElementById('profileAvatar').textContent = (profile.name || 'S').charAt(0).toUpperCase();
+  
+  showToast('✅ Profile saved successfully! Farmers can now see you.');
+}
+
+// ─── DISEASE TAG CLICK ───
+document.querySelectorAll('.disease-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    const disease = tag.dataset.disease;
+    if (selectedDiseases.includes(disease)) {
+      selectedDiseases = selectedDiseases.filter(d => d !== disease);
+      tag.classList.remove('selected');
+    } else {
+      selectedDiseases.push(disease);
+      tag.classList.add('selected');
+    }
+  });
+});
+
+// ─── REQUEST FUNCTIONS ───
+function sevClass(s) {
+  const m = { Critical:'sev-critical', High:'sev-high', Moderate:'sev-moderate', Low:'sev-low', Healthy:'sev-healthy' };
+  return m[s] || 'sev-moderate';
+}
+function stClass(s) {
+  const m = { pending:'st-pending', accepted:'st-accepted', done:'st-done', declined:'st-declined' };
+  return m[s] || 'st-pending';
+}
+
+function calcDist(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lat2) return null;
+  const R = 6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function loadRequests() {
+  const raw = JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]');
+  allRequests = raw;
+  updateStats(raw);
+  renderRequests(raw);
+}
+
+function updateStats(reqs) {
+  const total = reqs.length;
+  const pending = reqs.filter(r => r.status === 'pending').length;
+  const accepted = reqs.filter(r => r.status === 'accepted').length;
+  const done = reqs.filter(r => r.status === 'done').length;
+  document.getElementById('heroTotal').textContent = total;
+  document.getElementById('heroPending').textContent = pending;
+  document.getElementById('heroAccepted').textContent = accepted;
+  document.getElementById('heroDone').textContent = done;
+  document.getElementById('reqBadge').textContent = total + ' request' + (total !== 1 ? 's' : '');
+}
+
+function renderRequests(reqs) {
+  const filtered = currentFilter === 'all' ? reqs : reqs.filter(r => r.status === currentFilter);
+  const list = document.getElementById('requestsList');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No ${currentFilter === 'all' ? '' : currentFilter} requests</div></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(req => {
+    const diseaseInfo = DISEASE_DB[req.disease] || { severity:'Moderate', chemical:[], organic:'' };
+    const dist = calcDist(sprayerLat, sprayerLng, req.farmerLat, req.farmerLng);
+    const distText = dist ? `${dist.toFixed(1)} km` : 'Location not shared';
+    const isPending = req.status === 'pending';
+    const isAccepted = req.status === 'accepted';
+    let pestHtml = '';
+    if (diseaseInfo.chemical.length) {
+      pestHtml = diseaseInfo.chemical.map(p => `<div class="pest-item"><div class="pest-name">${p.name}</div><div class="pest-meta">💊 ${p.dosage} · 🔁 ${p.frequency}</div></div>`).join('');
+      if (diseaseInfo.organic) pestHtml += `<div class="organic-rec">🌿 Organic: ${diseaseInfo.organic}</div>`;
+    }
+    const mapsUrl = req.farmerLat ? (sprayerLat ? `https://www.google.com/maps/dir/${sprayerLat},${sprayerLng}/${req.farmerLat},${req.farmerLng}` : `https://www.google.com/maps?q=${req.farmerLat},${req.farmerLng}`) : '#';
+    return `
+    <div class="req-card">
+      <div class="req-header">
+        <div class="farmer-row"><div class="avatar">${(req.farmerName||'F').charAt(0)}</div><div><div class="farmer-name">👨‍🌾 ${req.farmerName}</div><div class="farmer-meta">📌 ${req.ref} · ${new Date(req.timestamp).toLocaleString()}</div></div></div>
+        <div class="req-badges"><span class="sev-badge ${sevClass(diseaseInfo.severity)}">⚠️ ${diseaseInfo.severity}</span><span class="status-tag ${stClass(req.status)}">${req.status.toUpperCase()}</span></div>
+      </div>
+      <div class="req-body">
+        <div><div class="info-block-title">🌾 ${req.disease}</div><div class="detail-row">📅 ${req.date} · ⏰ ${req.timeSlot} · 🌾 ${req.acres} acres</div>${pestHtml}</div>
+        <div><div class="dist-box"><div class="dist-val">${distText}</div></div><div class="contact-btns"><a href="tel:${req.sprayerPhone||''}" class="btn-call">📞 Call</a><a href="${mapsUrl}" target="_blank" class="btn-maps">🗺 Navigate</a></div>
+        <div class="action-btns"><button class="btn-accept" ${isPending?'':'disabled'} onclick="updateStatus('${req.ref}', 'accepted')">${isPending ? '✓ Accept' : isAccepted ? '✓ Accepted' : '✓ Done'}</button>
+        <button class="btn-done" ${isAccepted?'':'disabled'} onclick="updateStatus('${req.ref}', 'done')">✅ Mark Done</button>
+        <button class="btn-decline" onclick="updateStatus('${req.ref}', 'declined')">✗ Decline</button></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.updateStatus = function(ref, newStatus) {
+  const bookings = JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]');
+  const idx = bookings.findIndex(b => b.ref === ref);
+  if (idx !== -1) bookings[idx].status = newStatus;
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+  showToast({ accepted:'✅ Job accepted!', done:'🏆 Marked as done!', declined:'✗ Declined' }[newStatus] || 'Updated');
+  loadRequests();
+};
+
+window.setFilter = function(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRequests(allRequests);
+};
+
+function closeModal() { document.getElementById('mapModal').classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function logout() { if(confirm('Logout?')) window.location.href='/'; }
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  if (tabName === 'profile') {
+    document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+    document.getElementById('tab-profile').classList.add('active');
+    loadSprayerProfile();
+  } else if (tabName === 'requests') {
+    document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+    document.getElementById('tab-requests').classList.add('active');
+    loadRequests();
+  } else if (tabName === 'protocol') {
+    document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+    document.getElementById('tab-protocol').classList.add('active');
+  }
+}
+
+// ─── GPS INIT ───
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(pos => {
+    sprayerLat = pos.coords.latitude;
+    sprayerLng = pos.coords.longitude;
+    loadSprayerProfile();
+    loadRequests();
+  }, () => { loadSprayerProfile(); loadRequests(); });
+} else { loadSprayerProfile(); loadRequests(); }
+
+setInterval(() => loadRequests(), 10000);
+</script>
+</body>
+</html>
