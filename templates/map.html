@@ -1,138 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- PWA Setup -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PaddyGuard AI — Find Pesticide Shops</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --g950:#052e16;--g900:#14532d;--g700:#15803d;--g600:#16a34a;--g500:#22c55e;
-  --g400:#4ade80;--g100:#dcfce7;--g50:#f0fdf4;
-  --t900:#0c1a0e;--t500:#3d5c42;--t400:#5a7a5f;--t300:#7a9a7f;
-  --bg:#f4f8f4;--white:#fff;--border:#d4e8d8;--borderl:#e8f4ea;
-  --sh:0 2px 8px rgba(12,26,14,.08),0 8px 24px rgba(12,26,14,.06);
-  --shs:0 1px 3px rgba(12,26,14,.06);
-  --r:16px;--rs:10px;
-  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:var(--font);background:var(--bg);color:var(--t900);font-size:14px;-webkit-font-smoothing:antialiased;}
-
-.hdr{background:var(--g950);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;z-index:200;position:relative;}
-.logo{display:flex;align-items:center;gap:9px;}
-.logo-name{font-size:17px;font-weight:800;color:#fff;}
-.logo-ai{font-size:10px;font-weight:700;color:var(--g400);background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);padding:2px 8px;border-radius:20px;font-family:var(--mono);margin-left:3px;}
-.back-btn{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;font-weight:500;transition:color .2s;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);}
-.back-btn:hover{color:var(--g400);border-color:rgba(74,222,128,.3);}
-.hdr-center{font-size:14px;font-weight:600;color:rgba(255,255,255,.7);}
-
-.layout{display:flex;height:calc(100vh - 54px);}
-
-.sidebar{width:400px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:100;}
-.sb-top{padding:20px 20px 0;flex-shrink:0;}
-.sb-title{font-size:18px;font-weight:800;color:var(--t900);margin-bottom:3px;}
-.sb-sub{font-size:12px;color:var(--t300);font-family:var(--mono);margin-bottom:16px;}
-
-.search-wrap{display:flex;gap:8px;margin-bottom:12px;}
-.search-box{flex:1;display:flex;align-items:center;gap:9px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 14px;transition:border-color .2s;}
-.search-box:focus-within{border-color:var(--g600);background:#fff;}
-.search-box svg{color:var(--t300);flex-shrink:0;}
-.search-box input{background:none;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--t900);width:100%;}
-.search-box input::placeholder{color:var(--t300);}
-.search-btn{background:var(--g600);color:#fff;border:none;border-radius:var(--rs);padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:background .18s;}
-.search-btn:hover{background:var(--g700);}
-
-.locate-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--g600);color:#fff;border:none;border-radius:var(--rs);padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;margin-bottom:12px;box-shadow:0 3px 12px rgba(22,163,74,.3);}
-.locate-btn:hover{background:var(--g700);transform:translateY(-1px);}
-.locate-btn:disabled{background:#9ca3af;cursor:not-allowed;transform:none;box-shadow:none;}
-.spin{animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.view-row{display:flex;gap:6px;margin-bottom:12px;}
-.view-chip{flex:1;padding:7px 0;border-radius:8px;border:1.5px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);background:var(--bg);color:var(--t400);transition:all .18s;text-align:center;}
-.view-chip.active{background:var(--g50);border-color:var(--g600);color:var(--g700);}
-.view-chip:hover:not(.active){border-color:var(--g400);color:var(--g600);}
-
-.radius-row{display:flex;gap:6px;margin-bottom:12px;}
-.rc{flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--mono);background:var(--bg);color:var(--t400);transition:all .18s;text-align:center;}
-.rc.active{background:var(--g50);border-color:var(--g600);color:var(--g700);}
-
-.status-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 14px;margin-bottom:12px;font-size:13px;color:var(--t400);}
-.sdot{width:8px;height:8px;border-radius:50%;background:#d1d5db;flex-shrink:0;}
-.sdot.green{background:var(--g600);animation:blink 2s infinite;}
-.sdot.loading{background:#f59e0b;animation:blink .7s infinite;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f4f8f4;color:#0c1a0e;}
+.header{background:#052e16;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-name{font-size:18px;font-weight:800;color:#fff;}
+.logo-ai{font-size:10px;font-weight:700;color:#4ade80;background:rgba(74,222,128,.15);padding:2px 8px;border-radius:20px;}
+.back-btn{color:rgba(255,255,255,.7);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;}
+.back-btn:hover{color:#4ade80;}
+.hdr-center{color:rgba(255,255,255,.8);font-size:14px;}
+.layout{display:flex;height:calc(100vh - 62px);}
+.sidebar{width:400px;background:#fff;border-right:1px solid #d4e8d8;display:flex;flex-direction:column;overflow:hidden;}
+.sb-top{padding:20px;}
+.sb-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.sb-sub{font-size:12px;color:#7a9a7f;margin-bottom:16px;}
+.search-group{display:flex;gap:8px;margin-bottom:12px;}
+.search-input{flex:1;display:flex;align-items:center;gap:8px;background:#f4f8f4;border:1.5px solid #d4e8d8;border-radius:12px;padding:10px 14px;}
+.search-input input{background:none;border:none;outline:none;flex:1;font-size:14px;}
+.search-input input::placeholder{color:#a3b9a7;}
+.search-btn{background:#16a34a;color:#fff;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;}
+.search-btn:hover{background:#15803d;}
+.gps-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;margin-bottom:16px;}
+.gps-btn:disabled{background:#9ca3af;cursor:not-allowed;}
+.loc-confirm{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#16a34a;display:none;align-items:center;gap:8px;}
+.loc-confirm.show{display:flex;}
+.map-type-row{display:flex;gap:6px;margin-bottom:12px;}
+.map-type{flex:1;padding:6px;border-radius:8px;border:1.5px solid #d4e8d8;background:#f4f8f4;font-size:11px;font-weight:600;text-align:center;cursor:pointer;}
+.map-type.active{background:#f0fdf4;border-color:#16a34a;color:#16a34a;}
+.radius-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.radius-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #d4e8d8;background:#f4f8f4;font-size:11px;font-weight:600;cursor:pointer;}
+.radius-btn.active{background:#f0fdf4;border-color:#16a34a;color:#16a34a;}
+.status{display:flex;align-items:center;gap:8px;background:#f4f8f4;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#7a9a7f;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#d1d5db;}
+.status-dot.green{background:#16a34a;}
+.status-dot.loading{background:#f59e0b;animation:blink 1s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-.result-banner{display:none;align-items:center;justify-content:space-between;background:var(--g50);border:1px solid var(--g100);border-radius:8px;padding:9px 14px;margin-bottom:12px;font-size:13px;color:var(--g700);font-weight:600;}
+.error-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#dc2626;display:none;}
+.error-msg.show{display:block;}
+.result-banner{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;font-weight:600;color:#16a34a;display:none;justify-content:space-between;}
 .result-banner.show{display:flex;}
-
-.shop-list-wrap{flex:1;overflow-y:auto;padding:0 20px 20px;}
-.shop-list{display:flex;flex-direction:column;gap:10px;}
-.shop-list-wrap::-webkit-scrollbar{width:3px;}
-.shop-list-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-
-.scard{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:15px;cursor:pointer;transition:all .18s;}
-.scard:hover{border-color:var(--g400);box-shadow:var(--sh);transform:translateX(3px);}
-.scard.selected{border-color:var(--g600);background:var(--g50);box-shadow:var(--sh);}
-.scard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:7px;}
-.scard-num{width:24px;height:24px;border-radius:7px;background:var(--g600);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);}
-.scard-name{font-size:14px;font-weight:700;color:var(--t900);line-height:1.3;flex:1;}
-.scard-dist{font-size:11px;font-weight:700;color:var(--g700);background:var(--g100);padding:3px 9px;border-radius:6px;font-family:var(--mono);flex-shrink:0;}
-.scard-addr{font-size:12px;color:var(--t400);margin-bottom:9px;line-height:1.4;padding-left:34px;}
-.scard-meta{display:flex;align-items:center;gap:6px;font-size:12px;flex-wrap:wrap;padding-left:34px;margin-bottom:9px;}
-.stars{color:#f59e0b;}
-.rnum{font-weight:700;color:#334155;font-family:var(--mono);}
-.rcnt{color:var(--t300);}
-.obadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;font-family:var(--mono);}
-.obadge.open{background:#dcfce7;color:#15803d;}
-.obadge.closed{background:#fee2e2;color:#dc2626;}
-.scard-actions{display:flex;gap:7px;padding-left:34px;flex-wrap:wrap;}
-.sa-dir{display:flex;align-items:center;gap:5px;background:var(--g600);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);text-decoration:none;transition:background .18s;}
-.sa-dir:hover{background:var(--g700);}
-.sa-view{display:flex;align-items:center;gap:5px;background:var(--bg);border:1.5px solid var(--border);color:var(--t400);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);text-decoration:none;transition:all .18s;}
-.sa-view:hover{border-color:var(--g400);color:var(--g700);}
-
-.skel{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--rs);height:120px;margin-bottom:10px;}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-.empty{text-align:center;padding:48px 20px;color:var(--t300);}
-.empty svg{display:block;margin:0 auto 14px;opacity:.35;}
-.empty p{font-size:14px;line-height:1.7;}
-
+.shop-list{flex:1;overflow-y:auto;padding:0 20px 20px;}
+.shop-card{background:#fff;border:1px solid #d4e8d8;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.shop-card:hover{border-color:#16a34a;transform:translateX(3px);}
+.shop-card.selected{border-color:#16a34a;background:#f0fdf4;}
+.shop-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.shop-num{width:24px;height:24px;border-radius:6px;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.shop-name{font-weight:700;font-size:14px;flex:1;margin-left:10px;}
+.shop-dist{font-size:11px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:6px;}
+.shop-addr{font-size:12px;color:#7a9a7f;margin-bottom:8px;padding-left:34px;}
+.shop-meta{display:flex;gap:8px;padding-left:34px;margin-bottom:8px;font-size:11px;}
+.shop-rating{color:#f59e0b;}
+.shop-actions{display:flex;gap:8px;padding-left:34px;}
+.dir-btn{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.view-btn{background:#f4f8f4;border:1px solid #d4e8d8;color:#5a7a5f;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.empty-state{text-align:center;padding:48px 20px;color:#a3b9a7;}
 .map-wrap{flex:1;position:relative;}
-#map{width:100%;height:100%;display:none;}
-.map-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:var(--bg);gap:14px;color:var(--t300);}
-.map-spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--g600);border-radius:50%;animation:spin .8s linear infinite;}
-
-.map-controls{position:absolute;top:12px;right:12px;z-index:10;display:flex;flex-direction:column;gap:8px;}
-.mc-btn{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--t900);transition:all .18s;box-shadow:var(--shs);display:flex;align-items:center;gap:6px;}
-.mc-btn:hover{border-color:var(--g600);color:var(--g600);}
-
-@media(max-width:768px){
+#map{width:100%;height:100%;}
+.map-loading{position:absolute;top:0;left:0;width:100%;height:100%;background:#f4f8f4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:10;}
+.map-controls{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;gap:6px;}
+.map-controls button{background:#fff;border:1px solid #d4e8d8;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;}
+@media(max-width:700px){
   .layout{flex-direction:column;}
-  .sidebar{width:100%;height:55vh;}
-  .map-wrap{height:45vh;}
+  .sidebar{width:100%;height:50vh;}
 }
 </style>
 </head>
 <body>
 
-<div class="hdr">
+<div class="header">
   <div class="logo">
     <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
       <circle cx="18" cy="18" r="17" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
       <path d="M18 5C18 5 10 10 10 19C10 23.8 13 27.5 18 29C23 27.5 26 23.8 26 19C26 10 18 5 18 5Z" fill="#4ade80"/>
-      <path d="M18 11C18 11 14 14.5 14 19C14 21.8 15.5 24 18 25C20.5 24 22 21.8 22 19C22 14.5 18 11 18 11Z" fill="#16a34a"/>
     </svg>
     <span class="logo-name">PaddyGuard</span><span class="logo-ai">AI</span>
   </div>
   <div class="hdr-center">📍 Find Nearby Pesticide Shops</div>
-  <a href="/" class="back-btn">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Back to Detection
-  </a>
+  <a href="/" class="back-btn">← Back to Detection</a>
 </div>
 
 <div class="layout">
@@ -141,287 +96,481 @@ body{font-family:var(--font);background:var(--bg);color:var(--t900);font-size:14
       <div class="sb-title">Pesticide Shops</div>
       <div class="sb-sub">Find shops near your farm</div>
 
-      <!-- Search by location name -->
-      <div class="search-wrap">
-        <div class="search-box">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <input type="text" id="locationInput" placeholder="Type city or village name..." onkeydown="if(event.key==='Enter')searchByLocation()"/>
+      <div class="search-group">
+        <div class="search-input">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#7a9a7f" stroke-width="1.4"/><path d="M11 11L14 14" stroke="#7a9a7f" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <input type="text" id="locationInput" placeholder="e.g. Karimnagar, Telangana" onkeydown="if(event.key==='Enter')searchLocation()"/>
         </div>
-        <button class="search-btn" onclick="searchByLocation()">Search</button>
+        <button class="search-btn" onclick="searchLocation()">Search</button>
       </div>
 
-      <!-- Live GPS -->
-      <button class="locate-btn" id="locateBtn" onclick="locateMe()">
+      <button class="gps-btn" id="gpsBtn" onclick="useGPS()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1V3M8 13V15M1 8H3M13 8H15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         Use My Live Location
       </button>
 
-      <!-- Map View -->
-      <div class="view-row">
-        <div class="view-chip active" onclick="setMapType('roadmap',this)">🗺️ Road</div>
-        <div class="view-chip" onclick="setMapType('satellite',this)">🛰️ Satellite</div>
-        <div class="view-chip" onclick="setMapType('hybrid',this)">🌍 Hybrid</div>
-        <div class="view-chip" onclick="setMapType('terrain',this)">🏔️ Terrain</div>
+      <div class="loc-confirm" id="locConfirm">
+        <span>📍</span><span id="locConfirmText">Location set</span>
       </div>
 
-      <!-- Radius -->
+      <div class="map-type-row">
+        <div class="map-type active" onclick="setMapType('roadmap',this)">Road</div>
+        <div class="map-type" onclick="setMapType('satellite',this)">Satellite</div>
+        <div class="map-type" onclick="setMapType('hybrid',this)">Hybrid</div>
+        <div class="map-type" onclick="setMapType('terrain',this)">Terrain</div>
+      </div>
+
       <div class="radius-row">
-        <div class="rc active" onclick="setRadius(2000,this)">2km</div>
-        <div class="rc" onclick="setRadius(5000,this)">5km</div>
-        <div class="rc" onclick="setRadius(10000,this)">10km</div>
-        <div class="rc" onclick="setRadius(20000,this)">20km</div>
-        <div class="rc" onclick="setRadius(50000,this)">50km</div>
+        <div class="radius-btn" onclick="setRadius(2000,this)">2km</div>
+        <div class="radius-btn" onclick="setRadius(5000,this)">5km</div>
+        <div class="radius-btn" onclick="setRadius(10000,this)">10km</div>
+        <div class="radius-btn" onclick="setRadius(20000,this)">20km</div>
+        <div class="radius-btn active" onclick="setRadius(50000,this)">50km</div>
       </div>
 
-      <!-- Status -->
-      <div class="status-bar">
-        <div class="sdot" id="sdot"></div>
-        <span id="statusTxt">Enter location or use GPS to find shops</span>
+      <div class="status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Enter location or use GPS to find shops</span>
       </div>
+
+      <div class="error-msg" id="errorMsg"></div>
 
       <div class="result-banner" id="resultBanner">
         <span>Found <strong id="shopCount">0</strong> shops</span>
-        <span id="radiusLbl" style="font-family:var(--mono);font-size:11px;opacity:.7"></span>
+        <span id="radiusText"></span>
       </div>
     </div>
 
-    <div class="shop-list-wrap">
-      <div class="shop-list" id="shopList">
-        <div class="empty">
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="24" r="13" stroke="currentColor" stroke-width="2"/><path d="M28 37V52" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="24" r="5" fill="currentColor" opacity=".2"/><path d="M20 50H36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <p>Enter your location or use GPS<br/>to find nearby pesticide shops</p>
-        </div>
+    <div class="shop-list" id="shopList">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="20" r="12" stroke="currentColor" stroke-width="1.5"/><path d="M24 32V44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <p>Enter your location or use GPS<br/>to find nearby pesticide shops</p>
       </div>
     </div>
   </div>
 
   <div class="map-wrap">
     <div class="map-loading" id="mapLoading">
-      <div class="map-spinner"></div>
-      <p>Waiting for location...</p>
+      <div style="width:40px;height:40px;border:3px solid #d4e8d8;border-top-color:#16a34a;border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <p>Loading Google Maps...</p>
     </div>
-    <div id="map"></div>
-    <div class="map-controls" id="mapControls" style="display:none">
-      <button class="mc-btn" onclick="map.setZoom(map.getZoom()+1)">＋ Zoom In</button>
-      <button class="mc-btn" onclick="map.setZoom(map.getZoom()-1)">－ Zoom Out</button>
-      <button class="mc-btn" onclick="fitAllMarkers()">⊞ Fit All</button>
+    <div id="map" style="display:none"></div>
+    <div class="map-controls">
+      <button onclick="if(window.map)window.map.setZoom(window.map.getZoom()+1)">+ Zoom In</button>
+      <button onclick="if(window.map)window.map.setZoom(window.map.getZoom()-1)">- Zoom Out</button>
+      <button onclick="fitMarkers()">⊞ Fit All</button>
     </div>
   </div>
 </div>
 
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
 <script>
-const KEYWORDS=['pesticide shop','agricultural shop','krishi kendra','agro centre','fertilizer store','farm supply'];
-let map=null,geocoder=null,infoWindow=null;
-let userLat=null,userLng=null;
-let shopMarkers=[],selectedCard=null;
-let allShops=[],searchRadius=2000;
-let currentMapType='roadmap';
+const KEYWORDS = ['pesticide shop', 'agricultural shop', 'krishi kendra', 'agro centre', 'fertilizer store', 'farm supply', 'pesticide store', 'agri clinic'];
+let map = null, geocoder = null, placesService = null;
+let userLat = null, userLng = null;
+let markers = [], userMarker = null;
+let shops = [], searchRadius = 50000; // 50km default
+let currentMapType = 'roadmap';
+let mapsReady = false;
+let infoWindow = null;
+let currentSearchLocation = null;
 
-function setMapType(type,el){
-  currentMapType=type;
-  if(map)map.setMapTypeId(type);
-  document.querySelectorAll('.view-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function setRadius(m,el){
-  searchRadius=m;
-  document.querySelectorAll('.rc').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  if(userLat)searchNearby({lat:userLat,lng:userLng});
-}
-
-function searchByLocation(){
-  const val=document.getElementById('locationInput').value.trim();
-  if(!val){alert('Please enter a location name.');return;}
-  if(!geocoder){geocoder=new google.maps.Geocoder();}
-  setStatus('loading','Searching for "'+val+'"...');
-  geocoder.geocode({address:val},(results,status)=>{
-    if(status==='OK'){
-      const loc=results[0].geometry.location;
-      userLat=loc.lat();userLng=loc.lng();
-      if(!map)initMapAt({lat:userLat,lng:userLng});
-      else{map.setCenter({lat:userLat,lng:userLng});map.setZoom(14);placeUserMarker({lat:userLat,lng:userLng});searchNearby({lat:userLat,lng:userLng});}
-    }else{setStatus('','Location not found. Try a more specific name.');}
+// Called when Google Maps loads
+window.initMap = function() {
+  console.log('Map loaded');
+  mapsReady = true;
+  geocoder = new google.maps.Geocoder();
+  document.getElementById('mapLoading').style.display = 'none';
+  document.getElementById('map').style.display = 'block';
+  
+  // Default center (India)
+  const defaultCenter = { lat: 20.5937, lng: 78.9629 };
+  
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: defaultCenter,
+    zoom: 5,
+    mapTypeId: currentMapType,
+    mapTypeControl: false,
+    zoomControl: false,
+    styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }]
   });
+  window.map = map;
+  
+  placesService = new google.maps.places.PlacesService(map);
+  infoWindow = new google.maps.InfoWindow();
+  
+  setStatus('', 'Ready — Enter a location or use GPS');
+};
+
+function searchLocation() {
+  const val = document.getElementById('locationInput').value.trim();
+  if (!val) {
+    showError('Please enter a city or village name');
+    return;
+  }
+  
+  if (!mapsReady || !geocoder) {
+    showError('Maps still loading. Please wait a moment.');
+    return;
+  }
+  
+  hideError();
+  setStatus('loading', 'Searching for "' + val + '"...');
+  
+  // Try multiple query formats
+  let queries = [
+    val + ', Telangana, India',
+    val + ', India',
+    val
+  ];
+  
+  let attempt = 0;
+  
+  function tryGeocode() {
+    if (attempt >= queries.length) {
+      setStatus('', 'Ready');
+      showError('Could not find "' + val + '". Try adding state name e.g. "Karimnagar, Telangana" or use GPS.');
+      return;
+    }
+    
+    const query = queries[attempt];
+    console.log('Geocoding attempt', attempt + 1, ':', query);
+    
+    geocoder.geocode({ address: query, region: 'IN' }, (results, status) => {
+      console.log('Geocode status:', status);
+      
+      if (status === 'OK' && results && results.length > 0) {
+        // SUCCESS - found the location!
+        const loc = results[0].geometry.location;
+        userLat = loc.lat();
+        userLng = loc.lng();
+        const center = { lat: userLat, lng: userLng };
+        currentSearchLocation = center;
+        
+        // Show confirmation
+        const addr = results[0].formatted_address;
+        showLocationConfirm('📍 ' + addr);
+        hideError();
+        
+        // Center map at the searched location
+        map.setCenter(center);
+        map.setZoom(13);
+        
+        // Place user marker
+        placeUserMarker(center);
+        
+        // Clear previous shops and markers
+        clearMarkers();
+        shops = [];
+        
+        // Search nearby shops at THIS location
+        setStatus('loading', 'Searching for pesticide shops near ' + val + '...');
+        searchNearby(center);
+        
+      } else {
+        attempt++;
+        tryGeocode();
+      }
+    });
+  }
+  
+  tryGeocode();
 }
 
-function locateMe(){
-  const btn=document.getElementById('locateBtn');
-  btn.disabled=true;
-  btn.innerHTML='<svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="spin"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-dasharray="20" stroke-linecap="round"/></svg> Detecting GPS...';
-  setStatus('loading','Accessing GPS location...');
-  if(!navigator.geolocation){setStatus('','GPS not supported by your browser.');resetLocBtn();return;}
+function useGPS() {
+  const btn = document.getElementById('gpsBtn');
+  if (!mapsReady) {
+    showError('Maps still loading. Please wait.');
+    return;
+  }
+  
+  if (!navigator.geolocation) {
+    showError('GPS not supported. Please type your location.');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;"></div> Detecting GPS...';
+  setStatus('loading', 'Accessing GPS location...');
+  
   navigator.geolocation.getCurrentPosition(
-    pos=>{
-      userLat=pos.coords.latitude;userLng=pos.coords.longitude;
-      resetLocBtn('📍 Location Found');
-      if(!map)initMapAt({lat:userLat,lng:userLng});
-      else{map.setCenter({lat:userLat,lng:userLng});map.setZoom(14);placeUserMarker({lat:userLat,lng:userLng});searchNearby({lat:userLat,lng:userLng});}
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      const center = { lat: userLat, lng: userLng };
+      currentSearchLocation = center;
+      
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1V3M8 13V15M1 8H3M13 8H15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Use My Live Location';
+      
+      showLocationConfirm('📍 GPS location detected');
+      
+      map.setCenter(center);
+      map.setZoom(14);
+      placeUserMarker(center);
+      clearMarkers();
+      shops = [];
+      searchNearby(center);
     },
-    err=>{setStatus('','GPS denied. Please allow location or type it above.');resetLocBtn();},
-    {enableHighAccuracy:true,timeout:12000}
+    err => {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1V3M8 13V15M1 8H3M13 8H15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Use My Live Location';
+      
+      let msg = 'GPS error. Please type your location.';
+      if (err.code === 1) msg = 'Location access denied. Please allow location or type manually.';
+      showError(msg);
+      setStatus('', 'GPS failed — type location above');
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 
-function resetLocBtn(txt){
-  const btn=document.getElementById('locateBtn');
-  btn.disabled=false;
-  btn.innerHTML='<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1V3M8 13V15M1 8H3M13 8H15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> '+(txt||'Use My Live Location');
-}
-
-function initMapAt(center){
-  document.getElementById('mapLoading').style.display='none';
-  document.getElementById('map').style.display='block';
-  document.getElementById('mapControls').style.display='flex';
-  if(!geocoder)geocoder=new google.maps.Geocoder();
-  map=new google.maps.Map(document.getElementById('map'),{
-    center,zoom:14,mapTypeId:currentMapType,
-    mapTypeControl:false,streetViewControl:true,fullscreenControl:true,zoomControl:false,
-    styles:[
-      {featureType:'poi',stylers:[{visibility:'off'}]},
-      {featureType:'transit',stylers:[{visibility:'off'}]},
-      {featureType:'road',elementType:'geometry',stylers:[{color:'#f5f5f5'}]},
-      {featureType:'water',stylers:[{color:'#c9e8f5'}]},
-      {featureType:'landscape',stylers:[{color:'#f2f8f2'}]},
-    ]
-  });
-  infoWindow=new google.maps.InfoWindow();
-  placeUserMarker(center);
-  searchNearby(center);
-}
-
-let userMarker=null;
-function placeUserMarker(pos){
-  if(userMarker)userMarker.setMap(null);
-  userMarker=new google.maps.Marker({
-    position:pos,map,title:'Your Location',zIndex:999,
-    icon:{path:google.maps.SymbolPath.CIRCLE,scale:12,fillColor:'#16a34a',fillOpacity:1,strokeColor:'#fff',strokeWeight:3}
-  });
-  new google.maps.Circle({map,center:pos,radius:120,fillColor:'#16a34a',fillOpacity:.1,strokeColor:'#16a34a',strokeOpacity:.3,strokeWeight:1.5});
-}
-
-function searchNearby(center){
-  setStatus('loading','Searching for pesticide shops...');
-  showSkeletons();clearShopMarkers();allShops=[];
-  const svc=new google.maps.places.PlacesService(map);
-  let done=0;
-  KEYWORDS.forEach(kw=>{
-    svc.nearbySearch({location:center,radius:searchRadius,keyword:kw},(results,status)=>{
-      done++;
-      if(status===google.maps.places.PlacesServiceStatus.OK&&results){
-        results.forEach(p=>{if(!allShops.find(s=>s.place_id===p.place_id))allShops.push(p);});
-      }
-      if(done===KEYWORDS.length){
-        allShops=allShops.map(p=>({...p,_dist:calcDist(center,p.geometry.location)})).sort((a,b)=>a._dist-b._dist);
-        renderShops(allShops);
-      }
-    });
+function placeUserMarker(center) {
+  if (userMarker) userMarker.setMap(null);
+  userMarker = new google.maps.Marker({
+    position: center,
+    map: map,
+    title: 'Your Location',
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 10,
+      fillColor: '#16a34a',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 2
+    }
   });
 }
 
-function renderShops(shops){
-  const list=document.getElementById('shopList');
-  document.getElementById('shopCount').textContent=shops.length;
-  document.getElementById('radiusLbl').textContent=(searchRadius>=1000?searchRadius/1000+'km':searchRadius+'m')+' radius';
-  document.getElementById('resultBanner').classList.add('show');
-  if(shops.length===0){
-    setStatus('','No shops found. Try a larger radius.');
-    list.innerHTML='<div class="empty"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="24" r="13" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/><path d="M28 37V52" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p>No shops found.<br/>Try a larger radius.</p></div>';
+function searchNearby(center) {
+  if (!placesService) {
+    setStatus('', 'Place search not available');
     return;
   }
-  setStatus('green',shops.length+' pesticide shops found nearby');
-  shops.forEach((place,i)=>{
-    const mk=new google.maps.Marker({
-      position:place.geometry.location,map,title:place.name,
-      label:{text:String(i+1),color:'#fff',fontSize:'11px',fontWeight:'700'},
-      icon:{path:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',fillColor:'#16a34a',fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:1.9,anchor:new google.maps.Point(12,22),labelOrigin:new google.maps.Point(12,9)}
-    });
-    mk.addListener('click',()=>selectShop(i,place,mk));
-    shopMarkers.push(mk);
+  
+  const location = new google.maps.LatLng(center.lat, center.lng);
+  let completed = 0;
+  let allResults = [];
+  
+  KEYWORDS.forEach(keyword => {
+    placesService.nearbySearch(
+      { location: location, radius: searchRadius, keyword: keyword },
+      (results, status) => {
+        completed++;
+        if (status === 'OK' && results && results.length > 0) {
+          results.forEach(place => {
+            if (!allResults.find(s => s.place_id === place.place_id)) {
+              const dist = calculateDistance(center, place.geometry.location);
+              allResults.push({ ...place, distance: dist });
+            }
+          });
+        }
+        if (completed === KEYWORDS.length) {
+          // Sort by distance and remove duplicates
+          allResults.sort((a, b) => a.distance - b.distance);
+          shops = allResults;
+          renderShops(shops);
+        }
+      }
+    );
   });
-  list.innerHTML=shops.map((p,i)=>{
-    const dist=fmtDist(p._dist);
-    const rat=p.rating?p.rating.toFixed(1):null;
-    const isOpen=p.opening_hours?.isOpen?.();
-    const obadge=p.opening_hours?`<span class="obadge ${isOpen?'open':'closed'}">${isOpen?'Open Now':'Closed'}</span>`:'';
-    const dirUrl=`https://www.google.com/maps/dir/?api=1&destination_place_id=${p.place_id}`;
-    const viewUrl=`https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}`;
+}
+
+function renderShops(shopsList) {
+  const container = document.getElementById('shopList');
+  const count = shopsList.length;
+  
+  document.getElementById('shopCount').innerHTML = count;
+  const radiusKm = (searchRadius/1000).toFixed(0);
+  document.getElementById('radiusText').innerHTML = radiusKm + 'km radius';
+  document.getElementById('resultBanner').classList.add('show');
+  
+  if (count === 0) {
+    setStatus('', 'No shops found. Try larger radius.');
+    container.innerHTML = `<div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="20" r="12" stroke="currentColor" stroke-width="1.5"/><path d="M24 32V44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <p>No pesticide shops found nearby.<br/>Try increasing the radius to 20km or 50km.</p>
+    </div>`;
+    return;
+  }
+  
+  setStatus('green', count + ' pesticide shops found near ' + (document.getElementById('locationInput').value || 'your location'));
+  
+  // Add markers to map
+  shopsList.forEach((shop, i) => {
+    const marker = new google.maps.Marker({
+      position: shop.geometry.location,
+      map: map,
+      title: shop.name,
+      label: { text: String(i + 1), color: '#fff', fontSize: '11px', fontWeight: 'bold' }
+    });
+    marker.addListener('click', () => selectShop(i, shop));
+    markers.push(marker);
+  });
+  
+  // Fit bounds to show all markers
+  if (markers.length > 0) {
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(userMarker.getPosition());
+    markers.forEach(m => bounds.extend(m.getPosition()));
+    map.fitBounds(bounds);
+  }
+  
+  // Render shop cards
+  container.innerHTML = shopsList.map((shop, i) => {
+    const dist = shop.distance >= 1000 ? (shop.distance/1000).toFixed(1) + ' km' : Math.round(shop.distance) + ' m';
+    const rating = shop.rating ? shop.rating.toFixed(1) : null;
+    const dirUrl = `https://www.google.com/maps/dir/?api=1&destination_place_id=${shop.place_id}`;
+    const viewUrl = `https://www.google.com/maps/place/?q=place_id:${shop.place_id}`;
+    const address = shop.vicinity || 'Address not available';
     return `
-    <div class="scard" id="sc${i}" onclick="selectShop(${i})">
-      <div class="scard-top">
-        <div class="scard-num">${i+1}</div>
-        <div class="scard-name">${p.name}</div>
-        <div class="scard-dist">${dist}</div>
+    <div class="shop-card" id="shopCard${i}" onclick="selectShop(${i})">
+      <div class="shop-header">
+        <div class="shop-num">${i+1}</div>
+        <div class="shop-name">${escapeHtml(shop.name)}</div>
+        <div class="shop-dist">${dist}</div>
       </div>
-      <div class="scard-addr">${p.vicinity||'Address not available'}</div>
-      <div class="scard-meta">
-        ${rat?`<span class="stars">★</span><span class="rnum">${rat}</span><span class="rcnt">(${p.user_ratings_total||0})</span>`:''}
-        ${obadge}
+      <div class="shop-addr">${escapeHtml(address)}</div>
+      <div class="shop-meta">
+        ${rating ? `<span class="shop-rating">★ ${rating}</span>` : ''}
       </div>
-      <div class="scard-actions">
-        <a href="${dirUrl}" target="_blank" class="sa-dir" onclick="event.stopPropagation()">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6H10M7 3L10 6L7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Directions
-        </a>
-        <a href="${viewUrl}" target="_blank" class="sa-view" onclick="event.stopPropagation()">View on Maps</a>
+      <div class="shop-actions">
+        <a href="${dirUrl}" target="_blank" class="dir-btn" onclick="event.stopPropagation()">🗺 Directions</a>
+        <a href="${viewUrl}" target="_blank" class="view-btn" onclick="event.stopPropagation()">📍 View</a>
       </div>
     </div>`;
   }).join('');
 }
 
-function selectShop(i,place,marker){
-  if(selectedCard!==null)document.getElementById('sc'+selectedCard)?.classList.remove('selected');
-  selectedCard=i;
-  document.getElementById('sc'+i)?.classList.add('selected');
-  document.getElementById('sc'+i)?.scrollIntoView({behavior:'smooth',block:'nearest'});
-  const p=place||allShops[i];const mk=marker||shopMarkers[i];
-  if(map&&mk){
-    map.panTo(mk.getPosition());map.setZoom(16);
-    infoWindow.setContent(`
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;padding:6px;max-width:240px">
-        <div style="font-weight:800;font-size:14px;color:#0c1a0e;margin-bottom:5px">${p.name}</div>
-        <div style="font-size:12px;color:#5a7a5f;margin-bottom:6px;line-height:1.4">${p.vicinity||''}</div>
-        ${p.rating?`<div style="font-size:12px;color:#f59e0b;margin-bottom:10px">★ ${p.rating.toFixed(1)} · <span style="color:#7a9a7f">${p.user_ratings_total||0} reviews</span></div>`:''}
-        <a href="https://www.google.com/maps/dir/?api=1&destination_place_id=${p.place_id}" target="_blank"
-          style="display:inline-flex;align-items:center;gap:6px;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;text-decoration:none">
-          Get Directions →
-        </a>
-      </div>`);
-    infoWindow.open(map,mk);
+function selectShop(index, shop) {
+  // Highlight selected card
+  for (let i = 0; i < shops.length; i++) {
+    const el = document.getElementById('shopCard' + i);
+    if (el) el.classList.remove('selected');
+  }
+  document.getElementById('shopCard' + index)?.classList.add('selected');
+  
+  const selectedShop = shop || shops[index];
+  if (selectedShop && markers[index]) {
+    map.panTo(markers[index].getPosition());
+    map.setZoom(17);
+    
+    if (infoWindow) {
+      infoWindow.setContent(`
+        <div style="font-family:sans-serif;padding:8px;max-width:200px">
+          <strong>${escapeHtml(selectedShop.name)}</strong><br/>
+          ${escapeHtml(selectedShop.vicinity || '')}<br/>
+          <a href="https://www.google.com/maps/dir/?api=1&destination_place_id=${selectedShop.place_id}" target="_blank" style="color:#16a34a;font-size:12px;">Get Directions →</a>
+        </div>
+      `);
+      infoWindow.open(map, markers[index]);
+    }
   }
 }
 
-function fitAllMarkers(){
-  if(!map||shopMarkers.length===0)return;
-  const bounds=new google.maps.LatLngBounds();
-  if(userLat)bounds.extend({lat:userLat,lng:userLng});
-  shopMarkers.forEach(m=>bounds.extend(m.getPosition()));
+function setMapType(type, el) {
+  currentMapType = type;
+  if (map) map.setMapTypeId(type);
+  document.querySelectorAll('.map-type').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setRadius(radius, el) {
+  searchRadius = radius;
+  document.querySelectorAll('.radius-btn').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  
+  // Re-search if we have a current location
+  if (currentSearchLocation) {
+    setStatus('loading', 'Searching with ' + (radius/1000) + 'km radius...');
+    clearMarkers();
+    shops = [];
+    searchNearby(currentSearchLocation);
+  }
+}
+
+function fitMarkers() {
+  if (!map || markers.length === 0) return;
+  const bounds = new google.maps.LatLngBounds();
+  if (userMarker) bounds.extend(userMarker.getPosition());
+  markers.forEach(m => bounds.extend(m.getPosition()));
   map.fitBounds(bounds);
 }
 
-function calcDist(from,to){
-  const R=6371000,lat1=from.lat*Math.PI/180;
-  const lat2=(typeof to.lat==='function'?to.lat():to.lat)*Math.PI/180;
-  const dLat=lat2-lat1;
-  const dLng=((typeof to.lng==='function'?to.lng():to.lng)-from.lng)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+function clearMarkers() {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
 }
-function fmtDist(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m';}
-function setStatus(type,txt){
-  const d=document.getElementById('sdot');
-  d.className='sdot'+(type?' '+type:'');
-  document.getElementById('statusTxt').textContent=txt;
+
+function calculateDistance(from, to) {
+  const R = 6371000;
+  const lat1 = from.lat * Math.PI / 180;
+  const lat2 = (typeof to.lat === 'function' ? to.lat() : to.lat) * Math.PI / 180;
+  const dLat = lat2 - lat1;
+  const dLng = ((typeof to.lng === 'function' ? to.lng() : to.lng) - from.lng) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-function clearShopMarkers(){shopMarkers.forEach(m=>m.setMap(null));shopMarkers=[];infoWindow?.close();selectedCard=null;}
-function showSkeletons(){document.getElementById('shopList').innerHTML=Array(5).fill('<div class="skel"></div>').join('');}
-</script>
 
-<!-- 🔑 Your API key is already here — keep it -->
-<script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfD-l8PamdboGfI9-Yptcsq4mkg8p_y6g&libraries=places&callback=Function.prototype">
-</script>
+function setStatus(type, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (type === 'loading' ? ' loading' : type === 'green' ? ' green' : '');
+  document.getElementById('statusText').innerText = text;
+}
 
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.innerHTML = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('show');
+}
+
+function showLocationConfirm(msg) {
+  const el = document.getElementById('locConfirm');
+  document.getElementById('locConfirmText').innerText = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// Load Google Maps
+document.addEventListener('DOMContentLoaded', function() {
+  const script = document.createElement('script');
+  // IMPORTANT: Replace YOUR_API_KEY with your actual Google Maps API key
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDfD-l8PamdboGfI9-Yptcsq4mkg8p_y6g&libraries=places&callback=initMap';
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+});
+</script>
+{%- include "chatbot_widget.html" -%}
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(reg => console.log('ServiceWorker registered'))
+          .catch(err => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
+  </script>
 </body>
+
 </html>

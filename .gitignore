@@ -1,0 +1,37 @@
+# Environment variables - NEVER commit this
+.env
+
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Uploaded files (user uploads, regenerated at runtime)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Jupyter notebooks outputs (large)
+*.ipynb
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Temp scripts (not needed in production)
+setup_pwa.py
+fix_mobile.py
+make_icons.py
+
+# Large image test files
+*.jpeg
+*.jpg
+architecture diagram_2.png
+Methodology_Flowchart.jpg

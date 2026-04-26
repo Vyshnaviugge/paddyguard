@@ -1,8 +1,12 @@
-streamlit
-tensorflow
+Flask
+Flask-Mail
+Flask-Limiter
+pymongo[srv]
+dnspython
+python-dotenv
+werkzeug
+tensorflow-cpu
 numpy
-pandas
 pillow
 requests
-folium
-streamlit-folium
+gunicorn

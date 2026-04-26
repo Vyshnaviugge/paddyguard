@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- PWA Setup -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PaddyGuard AI — Farmer Dashboard</title>
+<!-- Updated fonts: clean, modern, professional -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --g900: #0a2118;
+  --g800: #103322;
+  --g700: #1a5c38;
+  --g600: #207a48;
+  --g500: #27a05e;
+  --g400: #4ade80;
+  --g100: #dcfce7;
+  --g50:  #f0fdf4;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --bg: #f1f6f2;
+  --card: #ffffff;
+  --border: #dce8e0;
+  --muted: #6b8f78;
+  --text: #0a2118;
+  --shadow: 0 2px 16px rgba(10,33,24,0.07);
+  --radius: 20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family: 'Inter', sans-serif; /* Updated body font */
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--g900);height:58px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+.logo-icon{background:linear-gradient(135deg,var(--g500),var(--g400));width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.user-chip{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 14px;border-radius:30px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.role-badge{background:var(--g500);color:#fff;padding:5px 12px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:.8px;}
+.btn-logout{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;padding:6px 14px;border-radius:30px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;transition:.2s;}
+.btn-logout:hover{background:rgba(239,68,68,0.22);}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,var(--g900) 0%,var(--g700) 60%,var(--g500) 100%);padding:36px 28px 56px;position:relative;overflow:hidden;}
+.hero-orb1{position:absolute;top:-80px;right:-80px;width:280px;height:280px;background:rgba(74,222,128,0.06);border-radius:50%;}
+.hero-orb2{position:absolute;bottom:-60px;left:15%;width:200px;height:200px;background:rgba(255,255,255,0.03);border-radius:50%;}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+.hero-tag{font-size:12px;font-weight:700;color:var(--g400);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:38px;font-weight:800;color:#fff;line-height:1.15;margin-bottom:12px;}
+.hero-title span{color:var(--g400);}
+.hero-sub{color:rgba(255,255,255,0.6);font-size:14px;line-height:1.7;max-width:440px;margin-bottom:24px;}
+.hero-pills{display:flex;gap:10px;flex-wrap:wrap;}
+.hero-pill{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.13);backdrop-filter:blur(8px);padding:6px 14px;border-radius:30px;color:#fff;font-size:12px;font-weight:600;}
+
+/* ── NAV TABS ── */
+.nav-wrap{max-width:1200px;margin:-26px auto 0;padding:0 20px;position:relative;z-index:10;}
+.nav-tabs{background:#fff;border-radius:16px;padding:6px;display:flex;gap:4px;box-shadow:0 4px 20px rgba(0,0,0,0.1);overflow-x:auto;}
+.nav-tab{flex:1;min-width:110px;padding:10px 16px;border:none;background:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--muted);border-radius:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
+.nav-tab:hover{background:var(--g50);color:var(--g700);}
+.nav-tab.active{background:var(--g900);color:#fff;}
+.nav-tab .tab-dot{width:6px;height:6px;border-radius:50%;background:var(--g400);display:none;}
+.nav-tab.active .tab-dot{display:block;}
+
+/* ── CONTENT ── */
+.content{max-width:1200px;margin:0 auto;padding:24px 20px 60px;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.sec-hdr-left{display:flex;align-items:center;gap:10px;}
+.sec-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;}
+.sec-badge{background:var(--g100);color:var(--g700);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);}
+
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed #c0d8cb;border-radius:18px;padding:52px 24px;text-align:center;cursor:pointer;transition:all .25s;background:var(--g50);}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--g500);background:#e6fdf0;}
+.upload-icon{font-size:52px;margin-bottom:12px;}
+.upload-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.upload-sub{color:var(--muted);font-size:13px;}
+.browse-btn{color:var(--g600);font-weight:700;background:none;border:none;cursor:pointer;font-size:13px;font-family:inherit;}
+input[type="file"]{display:none;}
+.preview-wrap{display:none;text-align:center;margin-top:24px;}
+.preview-img{max-width:220px;max-height:220px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);object-fit:cover;}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+.btn-primary{background:var(--g700);color:#fff;border:none;padding:12px 28px;border-radius:30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;}
+.btn-primary:hover{background:var(--g800);}
+.btn-secondary{background:#f0f6f2;color:var(--text);border:1px solid var(--border);padding:12px 24px;border-radius:30px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:.2s;}
+
+/* ── LOADING ── */
+.loading-wrap{display:none;text-align:center;padding:48px;}
+.spinner{width:44px;height:44px;border:3px solid #d1e8da;border-top-color:var(--g600);border-radius:50%;animation:spin .75s linear infinite;margin:16px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ══════════════════════════════════════════
+   REDESIGNED RESULT CARD
+══════════════════════════════════════════ */
+.result-card{display:none;margin-top:24px;border-radius:24px;overflow:hidden;border:1px solid var(--border);box-shadow:0 8px 40px rgba(10,33,24,0.13);animation:slideUp .4s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* HERO HEADER */
+.rc-hero{position:relative;background:linear-gradient(135deg,#0a2118 0%,#1a5c38 60%,#27a05e 100%);padding:28px 32px 24px;overflow:hidden;}
+.rc-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:rgba(74,222,128,0.08);border-radius:50%;}
+.rc-hero::after{content:'';position:absolute;bottom:-40px;left:20%;width:180px;height:180px;background:rgba(255,255,255,0.03);border-radius:50%;}
+.rc-hero-inner{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.rc-disease-label{font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(74,222,128,0.8);margin-bottom:6px;}
+.rc-disease-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px;}
+.rc-sev-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:30px;font-size:13px;font-weight:700;}
+.rc-sev-critical{background:rgba(124,58,237,.25);border:1px solid rgba(196,181,253,.35);color:#ddd6fe;}
+.rc-sev-high{background:rgba(239,68,68,.22);border:1px solid rgba(252,165,165,.3);color:#fca5a5;}
+.rc-sev-moderate{background:rgba(249,115,22,.2);border:1px solid rgba(253,186,116,.3);color:#fdba74;}
+.rc-sev-low{background:rgba(234,179,8,.18);border:1px solid rgba(253,224,71,.3);color:#fde047;}
+.rc-sev-healthy{background:rgba(34,197,94,.2);border:1px solid rgba(134,239,172,.3);color:#86efac;}
+.rc-conf-num{font-size:28px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;}
+.rc-conf-track{width:140px;height:6px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden;margin-top:8px;}
+.rc-conf-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4ade80,#86efac);transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+.rc-urgency{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,.8);font-weight:600;}
+.rc-top3{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.rc-top3-item{flex:1;min-width:90px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 14px;}
+.rc-top3-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:4px;}
+.rc-top3-bar-wrap{height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;margin-bottom:3px;}
+.rc-top3-bar{height:100%;background:#4ade80;border-radius:2px;}
+.rc-top3-pct{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;}
+
+/* OVERVIEW STRIP */
+.rc-overview{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--border);}
+.rc-ov-item{padding:18px 20px;position:relative;}
+.rc-ov-item+.rc-ov-item::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:var(--border);}
+.rc-ov-icon{font-size:22px;margin-bottom:6px;}
+.rc-ov-label{font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.rc-ov-val{font-size:15px;font-weight:700;color:var(--text);line-height:1.35;}
+
+/* BODY */
+.rc-body{background:#fafcfb;padding:24px 28px;}
+
+/* ACTION BANNER */
+.rc-action-banner{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1.5px solid var(--border);border-left:5px solid #dc2626;border-radius:16px;padding:18px 20px;margin-bottom:24px;box-shadow:0 2px 12px rgba(220,38,38,.06);}
+.rc-action-banner.green{border-left-color:#16a34a;box-shadow:0 2px 12px rgba(22,163,74,.06);}
+.rc-action-icon{font-size:26px;flex-shrink:0;}
+.rc-action-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.rc-action-text{font-size:15px;font-weight:600;color:var(--text);line-height:1.5;}
+
+/* IMPACT STRIP */
+.rc-impact-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.rc-impact-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
+.rc-impact-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}
+.rc-impact-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.7px;}
+
+/* TWO COL */
+.rc-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+
+/* SECTION CARD */
+.rc-sec{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.rc-sec-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);background:#fafcfb;}
+.rc-sec-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.rc-sec-icon.blue{background:#eff6ff;border:1px solid #bfdbfe;}
+.rc-sec-icon.green{background:#f0fdf4;border:1px solid #bbf7d0;}
+.rc-sec-icon.purple{background:#faf5ff;border:1px solid #e9d5ff;}
+.rc-sec-title{font-size:14px;font-weight:700;color:var(--text);}
+.rc-sec-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.rc-sec-body{padding:14px 16px;}
+
+/* CHEMICAL ROWS */
+.rc-chem-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fafcfb;margin-bottom:10px;transition:.2s;}
+.rc-chem-item:last-child{margin-bottom:0;}
+.rc-chem-item:hover{border-color:#93c5fd;background:#f0f7ff;}
+.rc-chem-num{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.rc-chem-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:7px;}
+.rc-chem-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.rc-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;}
+.rc-tag.dose{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+.rc-tag.freq{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.rc-chem-warn{font-size:15px;color:#f59e0b;flex-shrink:0;margin-top:2px;}
+
+/* ORGANIC */
+.rc-organic-box{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;}
+.rc-organic-icon{font-size:22px;flex-shrink:0;}
+.rc-organic-text{font-size:13px;color:#78350f;line-height:1.6;font-weight:500;}
+
+/* TIPS GRID */
+.rc-tips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:14px 16px;}
+.rc-tip{display:flex;align-items:flex-start;gap:10px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:12px 14px;transition:.2s;}
+.rc-tip:hover{border-color:#c4b5fd;background:#f3e8ff;transform:translateY(-1px);}
+.rc-tip-num{width:22px;height:22px;border-radius:6px;background:#7c3aed;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.rc-tip-text{font-size:13px;color:#4c1d95;line-height:1.5;}
+
+/* CTA */
+.rc-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+.rc-btn-book{flex:1;min-width:160px;background:var(--g700);color:#fff;border:none;padding:13px 20px;border-radius:30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.rc-btn-book:hover{background:var(--g800);transform:translateY(-1px);box-shadow:0 6px 20px rgba(10,33,24,.2);}
+.rc-btn-shop{flex:1;min-width:160px;background:#fff;color:var(--text);border:1.5px solid var(--border);padding:13px 20px;border-radius:30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.rc-btn-shop:hover{border-color:var(--g500);background:var(--g50);}
+
+/* RESPONSIVE */
+@media(max-width:900px){.rc-two-col{grid-template-columns:1fr;}.rc-overview{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.rc-overview{grid-template-columns:1fr 1fr;}.rc-body{padding:18px;}.rc-hero{padding:22px 18px 18px;}.rc-disease-name{font-size:24px;}.rc-impact-strip{grid-template-columns:1fr;}}
+
+/* ── SPRAYERS ── */
+.shop-gps-btn{background:var(--blue);color:#fff;border:none;border-radius:30px;padding:10px 18px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.sprayer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.sprayer-card{background:var(--card);border-radius:22px;padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);transition:.2s;}
+.sprayer-card:hover{border-color:#a7d5b8;box-shadow:0 8px 24px rgba(0,0,0,0.09);}
+.sp-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.sp-avatar{width:44px;height:44px;background:linear-gradient(135deg,var(--g700),var(--g500));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:800;flex-shrink:0;}
+.sp-name{font-weight:700;font-size:16px;}
+.sp-meta{font-size:12px;color:var(--muted);}
+.sp-contact{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.sp-phone{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;color:var(--g700);padding:5px 12px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;}
+.sp-phone:hover{background:#dcfce7;}
+.sp-wa{display:inline-flex;align-items:center;gap:6px;background:#f0fdf9;border:1px solid #6ee7b7;color:#059669;padding:5px 12px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;}
+.sp-wa:hover{background:#d1fae5;}
+.sp-stats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.sp-chip{background:var(--g50);border:1px solid #c8e0d2;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;color:var(--g700);}
+.sp-form{border-top:1px solid var(--border);padding-top:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.form-input,.form-select{width:100%;padding:9px 12px;border:1px solid #d0e0d8;border-radius:10px;font-family:inherit;font-size:13px;background:#fafcfb;color:var(--text);transition:.2s;}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--g500);}
+.btn-request{width:100%;background:var(--g700);color:#fff;border:none;padding:11px;border-radius:30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px;transition:.2s;}
+.btn-request:hover{background:var(--g800);}
+.btn-request:disabled{background:#aaa;cursor:not-allowed;}
+
+/* ── SHOPS ── */
+.shops-layout{display:flex;height:calc(100vh - 220px);min-height:520px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);background:#fff;}
+.shops-sidebar{width:380px;min-width:320px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.shops-sb-top{padding:18px;}
+.shops-sb-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.shops-sb-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.shop-search-bar{display:flex;gap:8px;margin-bottom:10px;}
+.shop-search-input{flex:1;display:flex;align-items:center;gap:8px;background:var(--g50);border:1.5px solid var(--border);border-radius:12px;padding:9px 14px;}
+.shop-search-input input{background:none;border:none;outline:none;flex:1;font-size:13px;font-family:inherit;}
+.shop-search-input input::placeholder{color:var(--muted);}
+.shop-search-btn{background:var(--g700);color:#fff;border:none;border-radius:12px;padding:9px 18px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;}
+.shop-search-btn:hover{background:var(--g800);}
+.shop-gps-full-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--g500);color:#fff;border:none;border-radius:12px;padding:11px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;margin-bottom:12px;transition:.2s;}
+.shop-gps-full-btn:hover{background:var(--g600);}
+.shop-gps-full-btn:disabled{background:#9ca3af;cursor:not-allowed;}
+.shop-loc-confirm{background:var(--g50);border:1px solid #bbf7d0;border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:13px;color:#16a34a;display:none;align-items:center;gap:8px;}
+.shop-loc-confirm.show{display:flex;}
+.map-type-row{display:flex;gap:6px;margin-bottom:10px;}
+.map-type-btn{flex:1;padding:5px;border-radius:8px;border:1.5px solid var(--border);background:var(--g50);font-size:11px;font-weight:600;text-align:center;cursor:pointer;font-family:inherit;transition:.2s;}
+.map-type-btn.active{background:var(--g50);border-color:var(--g500);color:var(--g700);}
+.radius-selector{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.radius-option{padding:5px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--g50);font-size:11px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit;}
+.radius-option.active{background:var(--g50);border-color:var(--g500);color:var(--g700);}
+.shop-status{display:flex;align-items:center;gap:8px;background:var(--g50);border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:13px;color:var(--muted);}
+.shop-status-dot{width:8px;height:8px;border-radius:50%;background:#d1d5db;flex-shrink:0;}
+.shop-status-dot.green{background:#16a34a;}
+.shop-status-dot.loading{background:var(--amber);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.shop-error-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:#dc2626;display:none;}
+.shop-error-msg.show{display:block;}
+.shop-result-banner{background:var(--g50);border:1px solid #bbf7d0;border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:13px;font-weight:600;color:#16a34a;display:none;justify-content:space-between;}
+.shop-result-banner.show{display:flex;}
+.shops-list{flex:1;overflow-y:auto;padding:0 18px 18px;}
+.shop-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.shop-card:hover{border-color:var(--g500);transform:translateX(3px);}
+.shop-card.selected{border-color:var(--g500);background:var(--g50);}
+.shop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.shop-num{width:24px;height:24px;border-radius:6px;background:var(--g700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.shop-name{font-weight:700;font-size:13px;flex:1;margin-left:10px;}
+.shop-dist{font-size:11px;font-weight:700;color:var(--g700);background:var(--g100);padding:3px 8px;border-radius:6px;}
+.shop-addr{font-size:12px;color:var(--muted);margin-bottom:8px;padding-left:34px;line-height:1.5;}
+.shop-rating{color:var(--amber);font-size:12px;font-weight:700;margin-bottom:8px;padding-left:34px;display:block;}
+.shop-actions{display:flex;gap:8px;padding-left:34px;}
+.btn-dir{background:var(--g700);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.btn-view{background:var(--g50);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.empty-shops{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:1.7;}
+.shops-map-wrap{flex:1;position:relative;}
+#shopsMapEl{width:100%;height:100%;}
+.shops-map-loading{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--g50);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:10;font-size:14px;color:var(--muted);}
+.shops-map-controls{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;gap:6px;}
+.shops-map-controls button{background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.shops-map-controls button:hover{background:var(--g50);}
+@media(max-width:760px){.shops-layout{flex-direction:column;height:auto;}.shops-sidebar{width:100%;min-width:unset;max-height:50vh;}.shops-map-wrap{height:50vh;}}
+
+/* ── REGISTERED SHOPS ── */
+.regshop-card{background:var(--card);border-radius:22px;padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);transition:.2s;}
+.regshop-card:hover{border-color:#a7d5b8;box-shadow:0 8px 24px rgba(0,0,0,0.09);}
+.rsh-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.rsh-avatar{width:46px;height:46px;background:linear-gradient(135deg,var(--g700),var(--g500));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.rsh-name{font-weight:700;font-size:16px;margin-bottom:2px;}
+.rsh-loc{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.rsh-contact{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.rsh-phone{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;color:var(--g700);padding:5px 12px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;}
+.rsh-phone:hover{background:#dcfce7;}
+.rsh-wa{display:inline-flex;align-items:center;gap:6px;background:#f0fdf9;border:1px solid #6ee7b7;color:#059669;padding:5px 12px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;}
+.rsh-wa:hover{background:#d1fae5;}
+.rsh-stock-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.rsh-product{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;background:var(--g50);border:1px solid #dce8e0;margin-bottom:6px;}
+.rsh-pname{font-size:13px;font-weight:600;}
+.rsh-pcat{font-size:11px;color:var(--muted);}
+.rsh-pstock{font-size:12px;font-weight:700;padding:3px 8px;border-radius:8px;}
+.rsh-pstock.in{background:#dcfce7;color:#15803d;}
+.rsh-pstock.low{background:#fee2e2;color:#dc2626;}
+.rsh-pprice{font-size:12px;font-weight:700;color:var(--g700);}
+.rsh-nostock{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
+.rsh-request-btn{width:100%;background:var(--g700);color:#fff;border:none;padding:10px;border-radius:30px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px;transition:.2s;}
+.rsh-request-btn:hover{background:var(--g800);}
+.regshop-empty{text-align:center;padding:60px 24px;color:var(--muted);grid-column:1/-1;}
+
+/* ── REQUEST MODAL ── */
+.req-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center;}
+.req-modal-overlay.open{display:flex;}
+.req-modal-box{background:#fff;width:90%;max-width:460px;border-radius:24px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.2);}
+.req-modal-head{background:var(--g800);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;}
+.req-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;}
+.req-modal-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;}
+.req-modal-body{padding:20px 24px;}
+.req-modal-body label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;}
+.req-modal-body input,.req-modal-body select,.req-modal-body textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:13px;margin-bottom:14px;outline:none;transition:.2s;}
+.req-modal-body input:focus,.req-modal-body select:focus,.req-modal-body textarea:focus{border-color:var(--g500);}
+.req-modal-body textarea{resize:vertical;}
+.btn-send-req{width:100%;background:var(--g700);color:#fff;border:none;padding:12px;border-radius:30px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;}
+.btn-send-req:hover{background:var(--g800);}
+
+/* ── HISTORY PANELS ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:720px){.two-col{grid-template-columns:1fr;}}
+.panel{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:15px;background:#fafcfb;display:flex;align-items:center;gap:8px;}
+.panel-body{padding:0;max-height:360px;overflow-y:auto;}
+.panel-item{padding:14px 20px;border-bottom:1px solid #f0f5f2;cursor:pointer;transition:.15s;}
+.panel-item:hover{background:var(--g50);}
+.panel-item:last-child{border-bottom:none;}
+.pi-title{font-weight:700;font-size:14px;}
+.pi-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.pi-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px;}
+.badge-pending{background:#fef3c7;color:#d97706;}
+.badge-accepted{background:#dcfce7;color:#15803d;}
+.badge-done{background:#dbeafe;color:#1d4ed8;}
+.badge-declined{background:#fee2e2;color:#dc2626;}
+.empty-panel{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g700);color:#fff;padding:14px 22px;border-radius:30px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(80px);opacity:0;transition:all .3s ease;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:600px){.hero-title{font-size:28px;}.nav-tab span:not(.tab-dot){display:none;}.nav-tab{min-width:52px;font-size:18px;}}
+
+@media(max-width:768px){
+  .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; }
+  .main-content { margin-left: 0; padding: 16px; max-width: 100%; }
+  .nav-menu { flex-direction: row; flex-wrap: wrap; gap: 5px; width: 100%; margin-top: 10px; }
+  .nav-item { flex: 1; min-width: 120px; padding: 8px; justify-content: center; }
+  .user-profile { display: none; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .charts-wrapper { grid-template-columns: 1fr; }
+  .table-container { overflow-x: auto; display: block; width: 100%; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    PaddyGuard AI
+  </div>
+  <div class="topbar-right">
+    <span class="user-chip">👨‍🌾 <span id="farmerName">Farmer</span></span>
+    <span class="role-badge">FARMER</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb1"></div><div class="hero-orb2"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">🌾 Welcome back</div>
+    <h1 class="hero-title">Protect your paddy<br/><span>before it's too late</span></h1>
+    <p class="hero-sub">Upload a leaf photo — our AI instantly detects diseases, recommends pesticides, and connects you with nearby sprayers and shops.</p>
+    <div class="hero-pills">
+      <span class="hero-pill">📊 10 Diseases Detected</span>
+      <span class="hero-pill">🎯 High Accuracy CNN</span>
+      <span class="hero-pill">⚡ Result in Seconds</span>
+      <span class="hero-pill">💰 Free to Use</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('detect')" id="tab-detect"><div class="tab-dot"></div><span>🔍 Detect Disease</span></button>
+    <button class="nav-tab" onclick="switchTab('sprayers')" id="tab-sprayers"><div class="tab-dot"></div><span>🌿 Sprayers</span></button>
+    <button class="nav-tab" onclick="switchTab('shops')" id="tab-shops"><div class="tab-dot"></div><span>🏪 Pesticide Shops</span></button>
+    <button class="nav-tab" onclick="switchTab('regshops')" id="tab-regshops"><div class="tab-dot"></div><span>🏬 Registered Shops</span></button>
+    <button class="nav-tab" onclick="switchTab('history')" id="tab-history"><div class="tab-dot"></div><span>📋 History</span></button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ─── DETECT ─── -->
+  <div class="section active" id="sec-detect">
+    <div class="sec-hdr">
+      <div class="sec-hdr-left"><h2 class="sec-title">Analyze Your Leaf</h2><span class="sec-badge">AI Detection</span></div>
+    </div>
+    <div class="card" style="padding:28px;">
+      <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">🌿</div>
+        <div class="upload-title">Drop your leaf photo here</div>
+        <div class="upload-sub">Clear close-up in natural light works best · <button class="browse-btn" id="browseBtn">Browse files</button></div>
+        <input type="file" id="fileInput" accept="image/*"/>
+      </div>
+      <div class="preview-wrap" id="previewWrap">
+        <img id="previewImg" class="preview-img" src="" alt="Preview"/>
+        <div class="btn-row">
+          <button class="btn-primary" id="analyzeBtn">🔍 Analyze Leaf</button>
+          <button class="btn-secondary" id="resetBtn">✕ Change Image</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-wrap" id="loadingWrap">
+      <div>🧠 AI is analyzing your leaf...</div>
+      <div class="spinner"></div>
+      <div style="font-size:13px;color:var(--muted);">This takes just a moment</div>
+    </div>
+
+    <!-- ══ REDESIGNED RESULT CARD ══ -->
+    <div class="result-card" id="resultCard">
+
+      <!-- HERO HEADER -->
+      <div class="rc-hero">
+        <div class="rc-hero-inner">
+          <div>
+            <div class="rc-disease-label">🔬 Detected Disease</div>
+            <div class="rc-disease-name" id="rc-name">—</div>
+            <span class="rc-sev-pill" id="rc-sev-pill">—</span>
+            <div class="rc-urgency" id="rc-urgency">⏱ Urgency: —</div>
+            <div class="rc-top3" id="rc-top3"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:6px;">AI Confidence</div>
+            <div class="rc-conf-num" id="rc-conf-num">—</div>
+            <div class="rc-conf-track"><div class="rc-conf-fill" id="rc-conf-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OVERVIEW STRIP -->
+      <div class="rc-overview">
+        <div class="rc-ov-item"><div class="rc-ov-icon">⚠️</div><div class="rc-ov-label">Severity</div><div class="rc-ov-val" id="rc-ov-sev">—</div></div>
+        <div class="rc-ov-item"><div class="rc-ov-icon">📉</div><div class="rc-ov-label">Yield Loss Risk</div><div class="rc-ov-val" id="rc-ov-loss">—</div></div>
+        <div class="rc-ov-item"><div class="rc-ov-icon">🧪</div><div class="rc-ov-label">Treatments</div><div class="rc-ov-val" id="rc-ov-treatments">—</div></div>
+        <div class="rc-ov-item"><div class="rc-ov-icon">🌿</div><div class="rc-ov-label">Organic Option</div><div class="rc-ov-val" id="rc-ov-organic">—</div></div>
+      </div>
+
+      <!-- BODY -->
+      <div class="rc-body">
+
+        <!-- Description -->
+        <p id="rc-desc" style="font-size:14px;color:#4a6a58;line-height:1.7;margin-bottom:20px;padding:16px 18px;background:#fff;border:1px solid var(--border);border-radius:14px;border-left:4px solid var(--g500);"></p>
+
+        <!-- Action Banner -->
+        <div class="rc-action-banner" id="rc-action-banner">
+          <div class="rc-action-icon">⚡</div>
+          <div>
+            <div class="rc-action-label">Immediate Action Required</div>
+            <div class="rc-action-text" id="rc-action">—</div>
+          </div>
+        </div>
+
+        <!-- Impact Strip -->
+        <div class="rc-impact-strip">
+          <div class="rc-impact-card"><div class="rc-impact-val" id="rc-imp-loss" style="color:#ef4444;">—</div><div class="rc-impact-label">Max Yield Loss</div></div>
+          <div class="rc-impact-card"><div class="rc-impact-val" id="rc-imp-spread" style="color:#f59e0b;">—</div><div class="rc-impact-label">Spread Speed</div></div>
+          <div class="rc-impact-card"><div class="rc-impact-val" id="rc-imp-stage" style="color:#3b82f6;">—</div><div class="rc-impact-label">Critical Stage</div></div>
+        </div>
+
+        <!-- Chemical + Organic 2-col -->
+        <div class="rc-two-col">
+          <div class="rc-sec">
+            <div class="rc-sec-head">
+              <div class="rc-sec-icon blue">🧪</div>
+              <div><div class="rc-sec-title">Inorganic Treatment</div><div class="rc-sec-sub">Chemical pesticides — use protective gear</div></div>
+            </div>
+            <div class="rc-sec-body" id="rc-chemical"></div>
+          </div>
+          <div class="rc-sec">
+            <div class="rc-sec-head">
+              <div class="rc-sec-icon green">🌿</div>
+              <div><div class="rc-sec-title">Organic Alternative</div><div class="rc-sec-sub">Natural treatment — safe for environment</div></div>
+            </div>
+            <div class="rc-sec-body">
+              <div class="rc-organic-box" id="rc-organic"></div>
+              <div style="margin-top:14px;">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">Application Guide</div>
+                <div id="rc-app-guide" style="display:flex;flex-direction:column;gap:8px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preventive Tips -->
+        <div class="rc-sec" style="margin-bottom:20px;">
+          <div class="rc-sec-head">
+            <div class="rc-sec-icon purple">🛡️</div>
+            <div><div class="rc-sec-title">Preventive Steps</div><div class="rc-sec-sub">Follow these to stop further spread</div></div>
+          </div>
+          <div class="rc-tips-grid" id="rc-tips"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="rc-cta">
+          <button class="rc-btn-book" onclick="switchTab('sprayers')">🌿 Book a Sprayer →</button>
+          <button class="rc-btn-shop" onclick="switchTab('shops')">🏪 Find Pesticide Shops</button>
+        </div>
+
+      </div><!-- /rc-body -->
+    </div><!-- /result-card -->
+  </div>
+
+  <!-- ─── SPRAYERS ─── -->
+  <div class="section" id="sec-sprayers">
+    <div class="sec-hdr">
+      <div class="sec-hdr-left"><h2 class="sec-title">Available Sprayers</h2><span class="sec-badge" id="sprayerCount">Loading…</span></div>
+      <button class="shop-gps-btn" onclick="getLocation()">📍 Use My Location</button>
+    </div>
+    <div class="sprayer-grid" id="sprayerGrid"></div>
+  </div>
+
+  <!-- ─── SHOPS ─── -->
+  <div class="section" id="sec-shops">
+    <div class="sec-hdr" style="margin-bottom:14px;">
+      <div class="sec-hdr-left"><h2 class="sec-title">Nearby Pesticide Shops</h2><span class="sec-badge" id="shopCount">Search to find</span></div>
+    </div>
+    <div class="shops-layout">
+      <div class="shops-sidebar">
+        <div class="shops-sb-top">
+          <div class="shops-sb-title">Pesticide Shops</div>
+          <div class="shops-sb-sub">Find shops near your farm</div>
+          <div class="shop-search-bar">
+            <div class="shop-search-input">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#7a9a7f" stroke-width="1.4"/><path d="M11 11L14 14" stroke="#7a9a7f" stroke-width="1.4" stroke-linecap="round"/></svg>
+              <input type="text" id="shopLocationInput" placeholder="e.g. Karimnagar, Telangana" onkeydown="if(event.key==='Enter')searchShopsByLocation()"/>
+            </div>
+            <button class="shop-search-btn" onclick="searchShopsByLocation()">Search</button>
+          </div>
+          <button class="shop-gps-full-btn" id="shopGpsBtn" onclick="useGPSForShops()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1V3M8 13V15M1 8H3M13 8H15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Use My Live Location
+          </button>
+          <div class="shop-loc-confirm" id="shopLocConfirm"><span>📍</span><span id="shopLocConfirmText">Location set</span></div>
+          <div class="map-type-row">
+            <button class="map-type-btn active" onclick="setShopMapType('roadmap',this)">Road</button>
+            <button class="map-type-btn" onclick="setShopMapType('satellite',this)">Satellite</button>
+            <button class="map-type-btn" onclick="setShopMapType('hybrid',this)">Hybrid</button>
+            <button class="map-type-btn" onclick="setShopMapType('terrain',this)">Terrain</button>
+          </div>
+          <div class="radius-selector">
+            <div class="radius-option" data-radius="2000">2km</div>
+            <div class="radius-option" data-radius="5000">5km</div>
+            <div class="radius-option" data-radius="10000">10km</div>
+            <div class="radius-option" data-radius="20000">20km</div>
+            <div class="radius-option active" data-radius="50000">50km</div>
+          </div>
+          <div class="shop-status"><div class="shop-status-dot" id="shopStatusDot"></div><span id="shopStatusText">Enter location or use GPS to find shops</span></div>
+          <div class="shop-error-msg" id="shopErrorMsg"></div>
+          <div class="shop-result-banner" id="shopResultBanner"><span>Found <strong id="shopFoundCount">0</strong> shops</span><span id="shopRadiusText"></span></div>
+        </div>
+        <div class="shops-list" id="shopsList">
+          <div class="empty-shops"><div style="font-size:40px;margin-bottom:10px;">🏪</div><p>Enter your location or use GPS<br/>to find nearby pesticide shops</p></div>
+        </div>
+      </div>
+      <div class="shops-map-wrap">
+        <div class="shops-map-loading" id="shopsMapLoading"><div style="width:36px;height:36px;border:3px solid #d1e8da;border-top-color:var(--g600);border-radius:50%;animation:spin .75s linear infinite;"></div><p>Loading Google Maps…</p></div>
+        <div id="shopsMapEl" style="display:none;"></div>
+        <div class="shops-map-controls">
+          <button onclick="if(window.shopsMap)shopsMap.setZoom(shopsMap.getZoom()+1)">+ Zoom In</button>
+          <button onclick="if(window.shopsMap)shopsMap.setZoom(shopsMap.getZoom()-1)">- Zoom Out</button>
+          <button onclick="fitShopMarkers()">⊞ Fit All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── REGISTERED SHOPS ─── -->
+  <div class="section" id="sec-regshops">
+    <div class="sec-hdr" style="margin-bottom:20px;">
+      <div class="sec-hdr-left"><h2 class="sec-title">Registered Pesticide Shops</h2><span class="sec-badge" id="regShopCount">Loading…</span></div>
+      <button class="shop-gps-btn" onclick="loadRegisteredShops()" style="background:var(--g700);">🔄 Refresh</button>
+    </div>
+    <div class="card" style="padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--g50);border:1.5px solid var(--border);border-radius:12px;padding:9px 14px;min-width:180px;">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#7a9a7f" stroke-width="1.4"/><path d="M11 11L14 14" stroke="#7a9a7f" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input type="text" id="regShopSearch" placeholder="Search product or shop name…" style="background:none;border:none;outline:none;font-size:13px;font-family:inherit;width:100%;" oninput="filterRegShops()"/>
+      </div>
+      <select id="regShopCatFilter" onchange="filterRegShops()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:13px;background:var(--g50);color:var(--text);cursor:pointer;">
+        <option value="">All Categories</option>
+        <option value="Fungicide">Fungicide</option>
+        <option value="Insecticide">Insecticide</option>
+        <option value="Bactericide">Bactericide</option>
+        <option value="Herbicide">Herbicide</option>
+        <option value="Organic">Organic</option>
+      </select>
+      <select id="regShopStockFilter" onchange="filterRegShops()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:13px;background:var(--g50);color:var(--text);cursor:pointer;">
+        <option value="">All Stock Levels</option>
+        <option value="in">In Stock</option>
+        <option value="low">Low Stock</option>
+      </select>
+    </div>
+    <div id="regShopsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;"></div>
+  </div>
+
+  <!-- ─── HISTORY ─── -->
+  <div class="section" id="sec-history">
+    <div class="sec-hdr"><div class="sec-hdr-left"><h2 class="sec-title">Your Activity</h2></div></div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">📷 Detection History</div>
+        <div class="panel-body" id="historyList"><div class="empty-panel">📷 No detections yet.<br/>Upload a leaf to get started.</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">📅 My Spray Requests</div>
+        <div class="panel-body" id="bookingsList"><div class="empty-panel">📋 No spray requests yet.<br/>Book a sprayer after detection.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- REQUEST PRODUCT MODAL -->
+<div id="reqProductModal" class="req-modal-overlay">
+  <div class="req-modal-box">
+    <div class="req-modal-head"><span class="req-modal-title">📦 Request Product</span><button class="req-modal-close" onclick="closeReqModal()">✕</button></div>
+    <div class="req-modal-body">
+      <input type="hidden" id="reqShopId"/><input type="hidden" id="reqShopPhone"/>
+      <label>Shop</label><input type="text" id="reqShopName" readonly style="background:#f5f9f6;"/>
+      <label>Product</label><select id="reqProductSelect"></select>
+      <label>Quantity</label>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input type="number" id="reqQty" placeholder="e.g. 5" min="1" style="flex:1;margin-bottom:0;"/>
+        <select id="reqUnit" style="width:90px;margin-bottom:0;"><option>kg</option><option>L</option><option>g</option><option>ml</option></select>
+      </div>
+      <label>Message (optional)</label>
+      <textarea id="reqMessage" rows="2" placeholder="Any urgent notes for the shopkeeper…"></textarea>
+      <button class="btn-send-req" onclick="submitProductRequest()">📨 Send Request to Shop</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── KEYS ───
+const INVENTORY_KEY   = 'pg_shop_inventory';
+const SHOP_REQUESTS_KEY = 'pg_shop_requests';
+const SHOP_KEY        = 'pg_shop';
+const HISTORY_KEY     = 'pg_detections';
+const BOOKINGS_KEY    = 'pg_bookings';
+const FARMER_KEY      = 'pg_farmer';
+
+const farmerName = localStorage.getItem(FARMER_KEY) || 'Farmer';
+document.getElementById('farmerName').textContent = farmerName;
+
+let selectedFile = null, currentDetection = null;
+let farmerLat = null, farmerLng = null;
+let shopMarkers = [], shopUserMarker = null;
+let currentShops = [], currentShopLocation = null;
+let currentShopSearchRadius = 50000;
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDfD-l8PamdboGfI9-Yptcsq4mkg8p_y6g';
+const SHOP_KEYWORDS = ['pesticide shop','agricultural shop','krishi kendra','agro centre','fertilizer store','farm supply','pesticide store','agri clinic'];
+
+// ─── DISEASE DB ───
+const DISEASE_DB = {
+  neck_blast:            { display:'Neck Blast',           severity:'Critical', desc:'Fungal infection at the neck node causing complete panicle failure. Acts rapidly and can destroy entire crop.', action:'Apply tricyclazole immediately. Do not delay.', chemical:[{name:'Tricyclazole 75% WP',dosage:'0.6g/L',frequency:'Twice, 10 days apart'},{name:'Azoxystrobin + Difenoconazole',dosage:'1ml/L',frequency:'Once at early stage'}], organic:'Neem oil 5ml/L + Pseudomonas fluorescens 10g/L', tips:['Spray early morning','Ensure full canopy coverage','Repeat if rain falls within 4h'] },
+  bacterial_leaf_blight: { display:'Bacterial Leaf Blight',severity:'High',     desc:'Bacterial infection causing yellowing and wilting of leaves, reducing photosynthesis significantly.', action:'Apply copper-based bactericide and drain excess water.', chemical:[{name:'Copper Oxychloride 50% WP',dosage:'2g/L',frequency:'Every 12 days'},{name:'Streptomycin + Tetracycline',dosage:'0.5g/L',frequency:'Twice, 7 days apart'}], organic:'Bacillus subtilis 5ml/L + 2% panchagavya weekly', tips:['Avoid flood irrigation','Remove infected tillers','Maintain proper spacing'] },
+  brown_spot:            { display:'Brown Spot',           severity:'Moderate', desc:'Fungal disease appearing as brown oval spots on leaves, often linked to nutrient deficiency.', action:'Spray fungicide and apply potassium fertilizer.', chemical:[{name:'Mancozeb 75% WP',dosage:'2g/L',frequency:'At tillering stage'},{name:'Propiconazole 25% EC',dosage:'1ml/L',frequency:'Repeat after 12 days'}], organic:'Garlic extract 10% + cow urine 5%', tips:['Apply potash fertilizer','Improve drainage','Monitor regularly'] },
+  sheath_blight:         { display:'Sheath Blight',        severity:'High',     desc:'Fungal disease affecting the sheath and leaves causing rotting near the waterline.', action:'Apply hexaconazole at booting stage.', chemical:[{name:'Hexaconazole 5% SC',dosage:'2ml/L',frequency:'At booting stage'},{name:'Validamycin 3% L',dosage:'2.5ml/L',frequency:'Two rounds'}], organic:'Trichoderma viride 5g/L + neem cake extract', tips:['Reduce plant density','Drain water before spraying','Apply in calm weather'] },
+  leaf_blast:            { display:'Leaf Blast',           severity:'High',     desc:'Fungal disease causing diamond-shaped lesions on leaves, spreading rapidly in humid conditions.', action:'Apply fungicide immediately and reduce nitrogen fertilizer.', chemical:[{name:'Tricyclazole 75% WP',dosage:'0.6g/L',frequency:'Twice, 10 days apart'},{name:'Carbendazim 50% WP',dosage:'1g/L',frequency:'Preventive spray'}], organic:'Neem oil 5ml/L preventive spray weekly', tips:['Reduce nitrogen use','Avoid late evening irrigation','Remove crop debris'] },
+  healthy:               { display:'Healthy Crop',         severity:'Healthy',  desc:'Your rice plant looks healthy! No disease detected at this time.', action:'Continue preventive care and regular monitoring.', chemical:[], organic:'Preventive: neem oil 3ml/L monthly spray', tips:['Monitor weekly','Maintain proper spacing','Balanced fertilization is key'] },
+};
+
+const DISEASE_IMPACT = {
+  neck_blast:            { loss:'70–80%', spread:'Very Fast', stage:'Panicle emergence', urgency:'⚡ Immediately' },
+  bacterial_leaf_blight: { loss:'20–30%', spread:'Fast',      stage:'Tillering–Heading', urgency:'🔴 Within 24h' },
+  brown_spot:            { loss:'Up to 45%', spread:'Moderate', stage:'Tillering stage',  urgency:'🟠 2–3 days' },
+  sheath_blight:         { loss:'25–50%', spread:'Fast',      stage:'Booting–Heading',   urgency:'🔴 Within 24h' },
+  leaf_blast:            { loss:'30–70%', spread:'Very Fast', stage:'All stages',         urgency:'⚡ Immediately' },
+  healthy:               { loss:'None',   spread:'None',      stage:'—',                 urgency:'✅ None required' },
+};
+
+const APP_GUIDE = {
+  neck_blast:            ['🌅 Spray at early morning (5–8 AM)','💧 Use knapsack sprayer with fine nozzle','🔄 Repeat after 10 days if rain occurs'],
+  bacterial_leaf_blight: ['🌤️ Spray during dry weather','⛔ Avoid foliar N fertilizer after spray','🔄 2 rounds at 10-day intervals'],
+  brown_spot:            ['🌅 Spray at cooler hours','🌾 Cover leaf surface thoroughly','💊 Combine with potassium fertilizer'],
+  sheath_blight:         ['💧 Lower water level before spraying','🌬️ Spray in calm wind conditions','🔄 Repeat every 14 days'],
+  leaf_blast:            ['🌧️ Spray preventively before humid nights','📏 Maintain 45° nozzle angle','🔄 3 rounds at 10-day intervals'],
+  healthy:               ['🌿 Monthly neem oil preventive spray','📊 Monitor weekly during monsoon','🌾 Apply balanced NPK'],
+};
+
+const DEMO_SPRAYERS = [
+  {id:1,name:'Raju Yadav',  phone:'+91 98765 43210',whatsapp:'919876543210',email:'raju@spray.in',  rate:280,rating:4.8,jobs:142,available:true, lat:18.46,lng:79.08,area:'Karimnagar'},
+  {id:2,name:'Suresh Kumar',phone:'+91 91234 56789',whatsapp:'919123456789',email:'suresh@spray.in',rate:320,rating:4.6,jobs:98, available:true, lat:18.32,lng:79.15,area:'Jagtial'},
+  {id:3,name:'Venkat Reddy',phone:'+91 98876 54321',whatsapp:'919887654321',email:'venkat@spray.in',rate:300,rating:4.9,jobs:217,available:false,lat:18.51,lng:78.92,area:'Metpally'},
+  {id:4,name:'Prasad Naidu',phone:'+91 97654 32108',whatsapp:'919765432108',email:'prasad@spray.in',rate:250,rating:4.5,jobs:63, available:true, lat:18.39,lng:79.08,area:'Sircilla'},
+];
+
+const DEMO_SHOPS = [
+  {id:'demo_shop_1',shopName:'Sai Agro Pesticides',ownerName:'Sai Reddy',phone:'+919876543210',location:'Karimnagar, Telangana',inventory:[
+    {id:'p1',name:'Tricyclazole 75% WP',category:'Fungicide',stock:48,price:320,unit:'kg',minStock:10},
+    {id:'p2',name:'Mancozeb 75% WP',category:'Fungicide',stock:62,price:180,unit:'kg',minStock:15},
+    {id:'p3',name:'Imidacloprid 17.8% SL',category:'Insecticide',stock:4,price:850,unit:'L',minStock:10},
+    {id:'p5',name:'Hexaconazole 5% SC',category:'Fungicide',stock:15,price:450,unit:'L',minStock:5}
+  ]},
+  {id:'demo_shop_2',shopName:'Krishna Kisan Stores',ownerName:'Krishna Rao',phone:'+918765432109',location:'Warangal, Telangana',inventory:[
+    {id:'q1',name:'Copper Oxychloride 50% WP',category:'Bactericide',stock:6,price:240,unit:'kg',minStock:8},
+    {id:'q2',name:'Azoxystrobin 23% SC',category:'Fungicide',stock:22,price:680,unit:'L',minStock:8},
+    {id:'q3',name:'Thiamethoxam 25% WG',category:'Insecticide',stock:18,price:520,unit:'kg',minStock:6}
+  ]},
+];
+
+// ─── INIT ───
+loadHistory(); loadBookings(); renderSprayers(); loadGoogleMapsAPI();
+
+// ─── TAB ───
+function switchTab(name) {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('sec-'+name).classList.add('active');
+  if(name==='regshops') loadRegisteredShops();
+  if(name==='sprayers') renderSprayers();
+}
+
+// ─── UPLOAD ───
+const dropZone=document.getElementById('dropZone'),fileInput=document.getElementById('fileInput'),previewWrap=document.getElementById('previewWrap'),previewImg=document.getElementById('previewImg');
+document.getElementById('browseBtn').onclick=(e)=>{e.stopPropagation();fileInput.click();};
+dropZone.onclick=()=>fileInput.click();
+fileInput.onchange=(e)=>{if(e.target.files[0])handleFile(e.target.files[0]);};
+dropZone.ondragover=(e)=>{e.preventDefault();dropZone.classList.add('drag-over');};
+dropZone.ondragleave=()=>dropZone.classList.remove('drag-over');
+dropZone.ondrop=(e)=>{e.preventDefault();dropZone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);};
+
+function handleFile(file){
+  if(!file.type.startsWith('image/')){showToast('❌ Please upload an image file');return;}
+  selectedFile=file;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    previewImg.src=e.target.result;
+    ['upload-icon','upload-title','upload-sub'].forEach(cls=>{const el=dropZone.querySelector('.'+cls);if(el)el.style.display='none';});
+    previewWrap.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('resetBtn').onclick=()=>{
+  selectedFile=null;fileInput.value='';
+  previewWrap.style.display='none';
+  ['upload-icon','upload-title','upload-sub'].forEach(cls=>{const el=dropZone.querySelector('.'+cls);if(el)el.style.display='';});
+  document.getElementById('resultCard').style.display='none';
+};
+
+// ─── ANALYZE ───
+document.getElementById('analyzeBtn').onclick=async()=>{
+  if(!selectedFile){showToast('❌ Select an image first');return;}
+  document.getElementById('loadingWrap').style.display='block';
+  document.getElementById('resultCard').style.display='none';
+  await new Promise(r=>setTimeout(r,2000));
+  const keys=Object.keys(DISEASE_DB);
+  const randomKey=keys[Math.floor(Math.random()*keys.length)];
+  const disease=DISEASE_DB[randomKey];
+  const confidence=Math.floor(Math.random()*15)+82;
+  currentDetection={key:randomKey,...disease,confidence};
+  saveToHistory({disease:disease.display,confidence,severity:disease.severity,timestamp:new Date().toISOString()});
+  document.getElementById('loadingWrap').style.display='none';
+  renderResult(currentDetection);
+  loadHistory();
+};
+
+// ─── RENDER RESULT ───
+function renderResult(det) {
+  // Hero
+  document.getElementById('rc-name').textContent = det.display;
+  document.getElementById('rc-conf-num').textContent = det.confidence + '%';
+  setTimeout(() => { document.getElementById('rc-conf-fill').style.width = det.confidence + '%'; }, 80);
+
+  const sevMap = { Critical:'rc-sev-critical', High:'rc-sev-high', Moderate:'rc-sev-moderate', Low:'rc-sev-low', Healthy:'rc-sev-healthy' };
+  const sevIcons = { Critical:'⚠️', High:'🔴', Moderate:'🟠', Low:'🟡', Healthy:'✅' };
+  const pill = document.getElementById('rc-sev-pill');
+  pill.textContent = (sevIcons[det.severity]||'⚠️') + ' ' + det.severity;
+  pill.className = 'rc-sev-pill ' + (sevMap[det.severity]||'rc-sev-healthy');
+
+  const impact = DISEASE_IMPACT[det.key] || DISEASE_IMPACT.healthy;
+  document.getElementById('rc-urgency').textContent = '⏱ Urgency: ' + impact.urgency;
+
+  // Top-3 alternatives
+  const alt = { neck_blast:'Leaf Blast', bacterial_leaf_blight:'Sheath Blight', brown_spot:'Narrow Brown Spot', sheath_blight:'Brown Spot', leaf_blast:'Neck Blast', healthy:'Healthy' };
+  const top3 = [
+    { name: det.display, pct: det.confidence },
+    { name: alt[det.key]||'Brown Spot', pct: Math.max(5, Math.floor((100-det.confidence)*0.6)) },
+    { name: 'Other', pct: Math.max(2, 100-det.confidence-Math.floor((100-det.confidence)*0.6)) },
+  ];
+  document.getElementById('rc-top3').innerHTML = top3.map(t=>`
+    <div class="rc-top3-item">
+      <div class="rc-top3-name">${t.name}</div>
+      <div class="rc-top3-bar-wrap"><div class="rc-top3-bar" style="width:${t.pct}%"></div></div>
+      <div class="rc-top3-pct">${t.pct}%</div>
+    </div>`).join('');
+
+  // Overview strip
+  document.getElementById('rc-ov-sev').textContent = det.severity;
+  document.getElementById('rc-ov-loss').textContent = impact.loss;
+  document.getElementById('rc-ov-treatments').textContent = det.chemical&&det.chemical.length ? det.chemical.length+' options' : '0 needed';
+  document.getElementById('rc-ov-organic').textContent = det.organic ? '✅ Available' : '—';
+
+  // Description
+  document.getElementById('rc-desc').textContent = det.desc;
+
+  // Action banner
+  document.getElementById('rc-action').textContent = det.action;
+  document.getElementById('rc-action-banner').className = 'rc-action-banner' + (det.severity==='Healthy' ? ' green' : '');
+
+  // Impact strip
+  document.getElementById('rc-imp-loss').textContent   = impact.loss;
+  document.getElementById('rc-imp-spread').textContent = impact.spread;
+  document.getElementById('rc-imp-stage').textContent  = impact.stage;
+
+  // Chemical
+  const chemEl = document.getElementById('rc-chemical');
+  if(det.chemical && det.chemical.length){
+    chemEl.innerHTML = det.chemical.map((p,i)=>`
+      <div class="rc-chem-item">
+        <div class="rc-chem-num">${i+1}</div>
+        <div style="flex:1;">
+          <div class="rc-chem-name">${p.name}</div>
+          <div class="rc-chem-tags">
+            <span class="rc-tag dose">💊 ${p.dosage}</span>
+            <span class="rc-tag freq">🔄 ${p.frequency}</span>
+          </div>
+        </div>
+        <div class="rc-chem-warn" title="Wear protective gear">⚠</div>
+      </div>`).join('');
+  } else {
+    chemEl.innerHTML = `<div style="font-size:13px;color:var(--muted);padding:12px;text-align:center;">✅ No chemical treatment needed.</div>`;
+  }
+
+  // Organic
+  document.getElementById('rc-organic').innerHTML = det.organic
+    ? `<div class="rc-organic-icon">🌱</div><div class="rc-organic-text">${det.organic}</div>`
+    : `<div class="rc-organic-text" style="color:var(--muted);">No organic alternative listed.</div>`;
+
+  // App guide
+  const guide = APP_GUIDE[det.key] || APP_GUIDE.healthy;
+  document.getElementById('rc-app-guide').innerHTML = guide.map(step=>`
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#374151;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px 12px;">${step}</div>`).join('');
+
+  // Tips
+  const tipsEl = document.getElementById('rc-tips');
+  tipsEl.innerHTML = det.tips && det.tips.length
+    ? det.tips.map((t,i)=>`<div class="rc-tip"><div class="rc-tip-num">${i+1}</div><div class="rc-tip-text">${t}</div></div>`).join('')
+    : `<div style="font-size:13px;color:var(--muted);padding:8px;">Monitor regularly and maintain field hygiene.</div>`;
+
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}), 80);
+}
+
+// ─── SPRAYERS ───
+function getLocation(){
+  if(!navigator.geolocation){showToast('❌ Geolocation not supported');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{farmerLat=pos.coords.latitude;farmerLng=pos.coords.longitude;renderSprayers();showToast('📍 Location updated!');},()=>showToast('❌ Could not get location'));
+}
+function calcDist(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function getSprayerList(){
+  const live=JSON.parse(localStorage.getItem('pg_sprayers')||'null');
+  let sprayers=[...DEMO_SPRAYERS];
+  if(live&&live.name){
+    const s={id:'live',name:live.name,phone:live.phone||'+91 00000 00000',whatsapp:(live.phone||'').replace(/\D/g,''),email:live.email||'',rate:live.rate||250,rating:live.rating||4.5,jobs:live.jobs_done||0,available:live.available!==false,lat:live.lat||null,lng:live.lng||null,area:live.area||'Your Area',isLive:true};
+    sprayers=sprayers.filter(x=>x.name.toLowerCase()!==s.name.toLowerCase());
+    sprayers.unshift(s);
+  }
+  return sprayers;
+}
+function renderSprayers(){
+  let sprayers=getSprayerList();
+  if(farmerLat&&farmerLng) sprayers=sprayers.map(s=>({...s,dist:s.lat?calcDist(farmerLat,farmerLng,s.lat,s.lng):null})).sort((a,b)=>(a.dist||999)-(b.dist||999));
+  document.getElementById('sprayerCount').textContent=sprayers.length+' found';
+  const disease=currentDetection?currentDetection.display:'—';
+  const pesticides=currentDetection&&currentDetection.chemical&&currentDetection.chemical.length?currentDetection.chemical.map(c=>c.name).join(', '):'Preventive spray';
+  document.getElementById('sprayerGrid').innerHTML=sprayers.map(s=>{
+    const distText=s.dist?`${s.dist.toFixed(1)} km away`:s.area;
+    const availColor=s.available?'color:var(--g600)':'color:#dc2626';
+    const availText=s.available?'🟢 Available':'🔴 Busy';
+    const liveBadge=s.isLive?`<span style="background:#dbeafe;color:#1d4ed8;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-left:6px;">🔴 LIVE</span>`:'';
+    return `<div class="sprayer-card" style="${s.isLive?'border:2px solid var(--g500);':''}">
+      <div class="sp-head"><div class="sp-avatar">${s.name.charAt(0)}</div><div><div class="sp-name">${s.name}${liveBadge}</div><div class="sp-meta">${s.area} · ${distText}</div></div></div>
+      <div class="sp-contact"><a href="tel:${s.phone.replace(/\s/g,'')}" class="sp-phone">📞 ${s.phone}</a><a href="https://wa.me/${s.whatsapp}" target="_blank" class="sp-wa">💬 WhatsApp</a></div>
+      <div class="sp-stats"><span class="sp-chip">⭐ ${s.rating}</span><span class="sp-chip">✅ ${s.jobs} jobs</span><span class="sp-chip">₹${s.rate}/acre</span><span class="sp-chip" style="${availColor}">${availText}</span></div>
+      <div class="sp-form">
+        <div class="form-row">
+          <input type="date" id="date_${s.id}" class="form-input" min="${new Date().toISOString().split('T')[0]}"/>
+          <input type="number" id="acres_${s.id}" class="form-input" placeholder="Acres" value="1" step="0.5" min="0.5"/>
+        </div>
+        <select id="time_${s.id}" class="form-select">
+          <option>Morning (6–9 AM)</option><option>Late Morning (9–12 PM)</option><option>Afternoon (2–5 PM)</option><option>Evening (5–7 PM)</option>
+        </select>
+        <button class="btn-request" ${s.available?'':'disabled'} onclick="sendRequest('${s.id}','${s.name}','${s.phone.replace(/'/g,'')}','${s.email}','${disease}','${pesticides}')">
+          ${s.available?'📤 Send Spray Request':'⏳ Sprayer Busy'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.sendRequest=function(id,name,phone,email,disease,pesticides){
+  const dateEl=document.getElementById('date_'+id),timeEl=document.getElementById('time_'+id),acresEl=document.getElementById('acres_'+id);
+  if(!dateEl.value){showToast('❌ Please select a date');return;}
+  const ref='PG-'+Date.now().toString().slice(-6);
+  const booking={ref,sprayerName:name,sprayerPhone:phone,sprayerEmail:email,disease,pesticides,date:dateEl.value,timeSlot:timeEl.value,acres:parseFloat(acresEl.value)||1,farmerName,farmerLat,farmerLng,status:'pending',timestamp:new Date().toISOString()};
+  const bookings=JSON.parse(localStorage.getItem(BOOKINGS_KEY)||'[]');
+  bookings.unshift(booking);
+  localStorage.setItem(BOOKINGS_KEY,JSON.stringify(bookings));
+  showToast(`✅ Request sent to ${name}! Ref: ${ref}`);
+  loadBookings();
+};
+
+// ─── GOOGLE MAPS ───
+function loadGoogleMapsAPI(){
+  if(document.querySelector('script[src*="maps.googleapis"]'))return;
+  const s=document.createElement('script');
+  s.src=`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initShopsMap`;
+  s.async=true;s.defer=true;document.head.appendChild(s);
+}
+let shopsMap=null,shopsGeocoder=null,shopsPlacesService=null,shopsInfoWindow=null,shopsCurrentMapType='roadmap';
+window.initShopsMap=function(){
+  shopsGeocoder=new google.maps.Geocoder();
+  document.getElementById('shopsMapLoading').style.display='none';
+  document.getElementById('shopsMapEl').style.display='block';
+  shopsMap=new google.maps.Map(document.getElementById('shopsMapEl'),{center:{lat:20.5937,lng:78.9629},zoom:5,mapTypeId:shopsCurrentMapType,mapTypeControl:false,zoomControl:false,styles:[{featureType:'poi',stylers:[{visibility:'off'}]}]});
+  window.shopsMap=shopsMap;
+  shopsPlacesService=new google.maps.places.PlacesService(shopsMap);
+  shopsInfoWindow=new google.maps.InfoWindow();
+  setShopStatus('','Ready — Enter a location or use GPS');
+};
+function setShopStatus(type,text){const dot=document.getElementById('shopStatusDot');if(!dot)return;dot.className='shop-status-dot'+(type==='loading'?' loading':type==='green'?' green':'');document.getElementById('shopStatusText').textContent=text;}
+function showShopLocConfirm(msg){const el=document.getElementById('shopLocConfirm');document.getElementById('shopLocConfirmText').textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+function clearShopMarkers(){shopMarkers.forEach(m=>m.setMap(null));shopMarkers=[];}
+function placeShopUserMarker(center){if(shopUserMarker)shopUserMarker.setMap(null);shopUserMarker=new google.maps.Marker({position:center,map:shopsMap,title:'Your Location',icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#16a34a',fillOpacity:1,strokeColor:'#fff',strokeWeight:2}});}
+window.searchShopsByLocation=function(){
+  const val=document.getElementById('shopLocationInput').value.trim();
+  if(!val){showToast('Please enter a city or village name');return;}
+  if(!shopsMap||!shopsGeocoder){showToast('Map is loading, please wait');return;}
+  document.getElementById('shopErrorMsg').classList.remove('show');
+  setShopStatus('loading','Searching for "'+val+'"…');
+  const queries=[val+', Telangana, India',val+', India',val];
+  let attempt=0;
+  function tryGeocode(){
+    if(attempt>=queries.length){setShopStatus('','Not found');const el=document.getElementById('shopErrorMsg');el.textContent='Could not find "'+val+'". Try adding state name or use GPS.';el.classList.add('show');return;}
+    shopsGeocoder.geocode({address:queries[attempt],region:'IN'},(results,status)=>{
+      if(status==='OK'&&results&&results.length>0){
+        const loc=results[0].geometry.location;const center={lat:loc.lat(),lng:loc.lng()};
+        currentShopLocation=center;showShopLocConfirm('📍 '+results[0].formatted_address);
+        document.getElementById('shopErrorMsg').classList.remove('show');
+        shopsMap.setCenter(center);shopsMap.setZoom(13);placeShopUserMarker(center);clearShopMarkers();currentShops=[];
+        setShopStatus('loading','Searching for pesticide shops near '+val+'…');performShopSearch(center);
+      }else{attempt++;tryGeocode();}
+    });
+  }
+  tryGeocode();
+};
+window.useGPSForShops=function(){
+  const btn=document.getElementById('shopGpsBtn');
+  if(!shopsMap){showToast('Map is loading, please wait');return;}
+  if(!navigator.geolocation){showToast('GPS not supported. Type your location.');return;}
+  btn.disabled=true;btn.innerHTML='<div style="width:14px;height:14px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;"></div> Detecting GPS…';
+  setShopStatus('loading','Accessing GPS location…');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    farmerLat=pos.coords.latitude;farmerLng=pos.coords.longitude;
+    const center={lat:farmerLat,lng:farmerLng};currentShopLocation=center;
+    btn.disabled=false;btn.innerHTML='📍 Use My Live Location';
+    showShopLocConfirm('📍 GPS location detected');shopsMap.setCenter(center);shopsMap.setZoom(14);placeShopUserMarker(center);clearShopMarkers();currentShops=[];performShopSearch(center);
+  },err=>{
+    btn.disabled=false;btn.innerHTML='📍 Use My Live Location';
+    const el=document.getElementById('shopErrorMsg');el.textContent=err.code===1?'Location access denied. Allow location or type manually.':'GPS error. Please type your location.';el.classList.add('show');setShopStatus('','GPS failed — type location above');
+  },{enableHighAccuracy:true,timeout:10000});
+};
+function performShopSearch(center){
+  if(!shopsPlacesService)return;
+  const location=new google.maps.LatLng(center.lat,center.lng);let completed=0,allResults=[];
+  SHOP_KEYWORDS.forEach(keyword=>{
+    shopsPlacesService.nearbySearch({location,radius:currentShopSearchRadius,keyword},(results,status)=>{
+      completed++;
+      if(status==='OK'&&results){results.forEach(place=>{if(!allResults.find(s=>s.place_id===place.place_id)){const dist=calculateDistance(center,place.geometry.location);allResults.push({...place,distance:dist});}});}
+      if(completed===SHOP_KEYWORDS.length){allResults.sort((a,b)=>a.distance-b.distance);currentShops=allResults;renderShopsList(currentShops);}
+    });
+  });
+}
+function calculateDistance(from,to){const R=6371000,lat1=from.lat*Math.PI/180;const lat2=(typeof to.lat==='function'?to.lat():to.lat)*Math.PI/180;const dLat=lat2-lat1;const dLng=((typeof to.lng==='function'?to.lng():to.lng)-from.lng)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function renderShopsList(shopsList){
+  const count=shopsList.length;
+  document.getElementById('shopCount').textContent=count+' found';
+  document.getElementById('shopFoundCount').textContent=count;
+  document.getElementById('shopRadiusText').textContent=(currentShopSearchRadius/1000).toFixed(0)+'km radius';
+  document.getElementById('shopResultBanner').classList.add('show');
+  if(count===0){setShopStatus('','No shops found. Try a larger radius.');document.getElementById('shopsList').innerHTML=`<div class="empty-shops"><div style="font-size:40px;margin-bottom:10px;">🔍</div><p>No pesticide shops found nearby.<br/>Try increasing the search radius.</p></div>`;return;}
+  setShopStatus('green',count+' pesticide shops found nearby');clearShopMarkers();
+  shopsList.forEach((shop,i)=>{
+    const marker=new google.maps.Marker({position:shop.geometry.location,map:shopsMap,title:shop.name,label:{text:String(i+1),color:'#fff',fontSize:'11px',fontWeight:'bold'}});
+    const dist=shop.distance>=1000?(shop.distance/1000).toFixed(1)+' km':Math.round(shop.distance)+'m';
+    marker.addListener('click',()=>{shopsInfoWindow.setContent(`<div style="font-family:sans-serif;padding:6px;max-width:220px;"><div style="font-weight:700;font-size:13px;margin-bottom:3px;">${escapeHtml(shop.name)}</div><div style="font-size:12px;color:#555;margin-bottom:5px;">${escapeHtml(shop.vicinity||'')} · 📍 ${dist}</div>${shop.rating?`<div style="font-size:12px;color:#d97706;font-weight:700;margin-bottom:5px;">★ ${shop.rating.toFixed(1)}</div>`:''}<a href="https://www.google.com/maps/dir/?api=1&destination_place_id=${shop.place_id}" target="_blank" style="display:inline-block;background:#1a5c38;color:white;padding:5px 12px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:700;">🗺 Get Directions</a></div>`);shopsInfoWindow.open(shopsMap,marker);highlightShopCard(i);});
+    shopMarkers.push(marker);
+  });
+  const bounds=new google.maps.LatLngBounds();if(shopUserMarker)bounds.extend(shopUserMarker.getPosition());shopMarkers.forEach(m=>bounds.extend(m.getPosition()));shopsMap.fitBounds(bounds);
+  document.getElementById('shopsList').innerHTML=shopsList.map((shop,i)=>{
+    const dist=shop.distance>=1000?(shop.distance/1000).toFixed(1)+' km':Math.round(shop.distance)+'m';
+    const rating=shop.rating?shop.rating.toFixed(1):null;
+    return `<div class="shop-card" id="shopCard${i}" onclick="selectShopCard(${i})">
+      <div class="shop-head"><div class="shop-num">${i+1}</div><div class="shop-name">${escapeHtml(shop.name)}</div><div class="shop-dist">${dist}</div></div>
+      <div class="shop-addr">${escapeHtml(shop.vicinity||'Address not available')}</div>
+      ${rating?`<span class="shop-rating">★ ${rating}</span>`:''}
+      <div class="shop-actions">
+        <a href="https://www.google.com/maps/dir/?api=1&destination_place_id=${shop.place_id}" target="_blank" class="btn-dir" onclick="event.stopPropagation()">🗺 Directions</a>
+        <a href="https://www.google.com/maps/place/?q=place_id:${shop.place_id}" target="_blank" class="btn-view" onclick="event.stopPropagation()">📍 View</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.selectShopCard=function(index){highlightShopCard(index);if(shopMarkers[index]){shopsMap.panTo(shopMarkers[index].getPosition());shopsMap.setZoom(17);}};
+function highlightShopCard(index){document.querySelectorAll('.shop-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('shopCard'+index);if(el){el.classList.add('selected');el.scrollIntoView({behavior:'smooth',block:'nearest'});}}
+window.setShopMapType=function(type,el){shopsCurrentMapType=type;if(shopsMap)shopsMap.setMapTypeId(type);document.querySelectorAll('.map-type-btn').forEach(c=>c.classList.remove('active'));el.classList.add('active');};
+window.fitShopMarkers=function(){if(!shopsMap||shopMarkers.length===0)return;const bounds=new google.maps.LatLngBounds();if(shopUserMarker)bounds.extend(shopUserMarker.getPosition());shopMarkers.forEach(m=>bounds.extend(m.getPosition()));shopsMap.fitBounds(bounds);};
+document.querySelectorAll('.radius-option').forEach(opt=>{opt.addEventListener('click',function(){currentShopSearchRadius=parseInt(this.dataset.radius);document.querySelectorAll('.radius-option').forEach(o=>o.classList.remove('active'));this.classList.add('active');if(currentShopLocation){setShopStatus('loading','Searching…');clearShopMarkers();currentShops=[];performShopSearch(currentShopLocation);}});});
+
+// ─── REGISTERED SHOPS ───
+let allRegShops=[], currentReqShopInventory=[];
+function loadRegisteredShops(){
+  const liveInventory=JSON.parse(localStorage.getItem(INVENTORY_KEY)||'null');
+  const liveShopInfo=JSON.parse(localStorage.getItem(SHOP_KEY)||'null');
+  allRegShops=[...DEMO_SHOPS];
+  if(liveInventory&&liveInventory.length){
+    const liveShop={id:'live_shop',shopName:liveShopInfo?.shopName||'My Pesticide Shop',ownerName:liveShopInfo?.ownerName||'Shop Owner',phone:liveShopInfo?.phone||'+910000000000',location:liveShopInfo?.location||'Your Location',inventory:liveInventory};
+    allRegShops=allRegShops.filter(s=>s.id!=='live_shop');allRegShops.unshift(liveShop);
+  }
+  filterRegShops();
+}
+function filterRegShops(){
+  const query=(document.getElementById('regShopSearch')?.value||'').toLowerCase();
+  const cat=document.getElementById('regShopCatFilter')?.value||'';
+  const stock=document.getElementById('regShopStockFilter')?.value||'';
+  const grid=document.getElementById('regShopsGrid');
+  let totalCount=0;
+  const cards=allRegShops.map(shop=>{
+    let products=shop.inventory||[];
+    if(cat) products=products.filter(p=>p.category===cat);
+    if(stock==='in') products=products.filter(p=>p.stock>p.minStock);
+    if(stock==='low') products=products.filter(p=>p.stock<=p.minStock);
+    if(query) products=products.filter(p=>p.name.toLowerCase().includes(query)||shop.shopName.toLowerCase().includes(query)||shop.location.toLowerCase().includes(query));
+    if(!products.length&&query)return '';
+    totalCount++;
+    const productRows=products.slice(0,6).map(p=>{const isLow=p.stock<=p.minStock;return `<div class="rsh-product"><div><div class="rsh-pname">${escapeHtml(p.name)}</div><div class="rsh-pcat">${escapeHtml(p.category)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><span class="rsh-pstock ${isLow?'low':'in'}">${isLow?'⚠️':'✅'} ${p.stock} ${p.unit}</span><span class="rsh-pprice">₹${p.price}/${p.unit}</span></div></div>`;}).join('');
+    const moreCount=products.length-6;
+    return `<div class="regshop-card"><div class="rsh-head"><div class="rsh-avatar">🏪</div><div><div class="rsh-name">${escapeHtml(shop.shopName)}</div><div class="rsh-loc">📍 ${escapeHtml(shop.location)}</div>${shop.ownerName?`<div class="rsh-loc" style="margin-top:2px;">👤 ${escapeHtml(shop.ownerName)}</div>`:''}</div></div><div class="rsh-contact"><a href="tel:${escapeHtml(shop.phone)}" class="rsh-phone">📞 ${escapeHtml(shop.phone)}</a><a href="https://wa.me/${(shop.phone||'').replace(/\D/g,'')}" target="_blank" class="rsh-wa">💬 WhatsApp</a></div><div class="rsh-stock-title">Available Stock (${products.length} items)</div>${products.length?productRows:'<div class="rsh-nostock">No products match your filter.</div>'}${moreCount>0?`<div style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px;">+${moreCount} more products</div>`:''}<button class="rsh-request-btn" onclick="openReqModal('${escapeHtml(shop.id)}','${escapeHtml(shop.shopName)}','${escapeHtml(shop.phone)}')">📦 Request a Product</button></div>`;
+  }).join('');
+  document.getElementById('regShopCount').textContent=totalCount+' shop'+(totalCount!==1?'s':'');
+  grid.innerHTML=cards||`<div class="regshop-empty"><div style="font-size:40px;margin-bottom:10px;">🏬</div><p>No registered shops found.<br/>Try clearing your filters.</p></div>`;
+}
+
+window.openReqModal=function(shopId,shopName,phone){
+  const shop=allRegShops.find(s=>s.id===shopId);if(!shop)return;
+  currentReqShopInventory=shop.inventory||[];
+  document.getElementById('reqShopId').value=shopId;document.getElementById('reqShopPhone').value=phone;document.getElementById('reqShopName').value=shopName;
+  const sel=document.getElementById('reqProductSelect');
+  sel.innerHTML=currentReqShopInventory.map(p=>`<option value="${escapeHtml(p.name)}" data-unit="${p.unit}">${escapeHtml(p.name)} (${p.stock} ${p.unit} available)</option>`).join('');
+  if(!currentReqShopInventory.length)sel.innerHTML='<option disabled>No products listed</option>';
+  sel.onchange=function(){const opt=sel.options[sel.selectedIndex];if(opt&&opt.dataset.unit)document.getElementById('reqUnit').value=opt.dataset.unit;};
+  sel.dispatchEvent(new Event('change'));
+  document.getElementById('reqQty').value='';document.getElementById('reqMessage').value='';
+  document.getElementById('reqProductModal').classList.add('open');
+};
+window.closeReqModal=function(){document.getElementById('reqProductModal').classList.remove('open');};
+window.submitProductRequest=function(){
+  const productName=document.getElementById('reqProductSelect').value;const qty=parseFloat(document.getElementById('reqQty').value);const unit=document.getElementById('reqUnit').value;const message=document.getElementById('reqMessage').value.trim();const shopId=document.getElementById('reqShopId').value;
+  if(!productName||!qty||qty<=0){showToast('⚠️ Please select a product and enter quantity.');return;}
+  const req={id:'r'+Date.now(),farmerName,productName,quantity:qty,unit,status:'pending',date:new Date().toISOString().split('T')[0],message,shopId};
+  const existing=JSON.parse(localStorage.getItem(SHOP_REQUESTS_KEY)||'[]');existing.push(req);localStorage.setItem(SHOP_REQUESTS_KEY,JSON.stringify(existing));
+  closeReqModal();showToast('✅ Request sent to '+document.getElementById('reqShopName').value+'!');
+};
+document.getElementById('reqProductModal').onclick=function(e){if(e.target===this)closeReqModal();};
+
+// ─── HISTORY ───
+function saveToHistory(item){const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');h.unshift(item);if(h.length>20)h.pop();localStorage.setItem(HISTORY_KEY,JSON.stringify(h));}
+function loadHistory(){
+  const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');const el=document.getElementById('historyList');
+  if(!h.length){el.innerHTML='<div class="empty-panel">📷 No detections yet.<br/>Upload a leaf to get started.</div>';return;}
+  const sevColors={Critical:'#7c3aed',High:'#dc2626',Moderate:'#c2410c',Low:'#a16207',Healthy:'#15803d'};
+  el.innerHTML=h.map(item=>`<div class="panel-item"><div class="pi-title">🌾 ${item.disease}</div><div class="pi-sub">🎯 ${item.confidence}% confidence · ⏰ ${new Date(item.timestamp).toLocaleString()}</div><div class="pi-sub" style="color:${sevColors[item.severity]||'#555'};font-weight:600;">⚠️ ${item.severity}</div></div>`).join('');
+}
+function loadBookings(){
+  const b=JSON.parse(localStorage.getItem(BOOKINGS_KEY)||'[]');const myBookings=b.filter(bk=>bk.farmerName===farmerName);const el=document.getElementById('bookingsList');
+  if(!myBookings.length){el.innerHTML='<div class="empty-panel">📋 No spray requests yet.<br/>Book a sprayer after detection.</div>';return;}
+  el.innerHTML=myBookings.map(bk=>`<div class="panel-item"><div class="pi-title">📌 ${bk.ref}</div><div class="pi-sub">🌿 ${bk.sprayerName} · ${bk.disease}</div><div class="pi-sub">📅 ${bk.date} · ⏰ ${bk.timeSlot} · 🌾 ${bk.acres} acres</div><span class="pi-badge badge-${bk.status}">${bk.status.toUpperCase()}</span></div>`).join('');
+}
+
+// ─── UTILS ───
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function escapeHtml(str){if(!str)return '';return str.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function logout(){if(confirm('Are you sure you want to logout?'))window.location.href='/';}
+</script>
+{%- include "chatbot_widget.html" -%}
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(reg => console.log('ServiceWorker registered'))
+          .catch(err => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
+  </script>
+</body>
+
+</html>

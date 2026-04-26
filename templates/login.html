@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- PWA Setup -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PaddyGuard AI — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(135deg, #052e16 0%, #064e3b 50%, #065f46 100%);
+    min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; padding: 20px;
+  }
+  .login-wrapper { display: flex; gap: 40px; align-items: center; max-width: 1050px; width: 100%; }
+  .login-left { flex: 1; color: white; }
+  .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .login-logo-name { font-size: 24px; font-weight: 800; color: #fff; }
+  .login-logo-ai { font-size: 12px; font-weight: 700; color: #4ade80; background: rgba(74,222,128,0.15); padding: 2px 8px; border-radius: 20px; border: 1px solid rgba(74,222,128,0.3); margin-left: 4px; }
+  .login-title { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; }
+  .login-title span { color: #4ade80; }
+  .login-desc { color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.6; margin-bottom: 28px; }
+  .role-cards-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .role-cards-row { display: flex; gap: 10px; }
+  .role-card { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; transition: background 0.2s; }
+  .role-card:hover { background: rgba(255,255,255,0.14); border-color: rgba(74,222,128,0.4); }
+  .role-icon { font-size: 26px; }
+  .role-name { font-weight: 700; color: #fff; font-size: 13px; }
+  .role-desc { color: rgba(255,255,255,0.5); font-size: 11px; line-height: 1.4; }
+  .login-card { background: white; border-radius: 24px; padding: 36px; width: 420px; flex-shrink: 0; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+  .login-card-title { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px; }
+  .login-card-sub { color: #666; font-size: 14px; margin-bottom: 20px; }
+  .role-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+  .role-tab { flex: 1; padding: 8px 4px; border: 1.5px solid #e5e7eb; border-radius: 10px; background: #f9fafb; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; color: #666; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .role-tab .tab-icon { font-size: 16px; }
+  .role-tab:hover { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+  .role-tab.active-farmer  { border-color: #16a34a; background: #f0fdf4; color: #16a34a; }
+  .role-tab.active-sprayer { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+  .role-tab.active-shop    { border-color: #d97706; background: #fffbeb; color: #d97706; }
+  .role-tab.active-admin   { border-color: #7c3aed; background: #f5f3ff; color: #7c3aed; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+  .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; color: #111; }
+  .form-input:focus { border-color: #16a34a; }
+  .selected-role-display { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 9px 14px; font-size: 13px; color: #16a34a; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+  .btn-login { width: 100%; padding: 13px; background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; margin-top: 4px; }
+  .btn-login:hover { opacity: 0.9; }
+  .error-msg { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+  .success-msg { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+  .guest-btn { display: block; text-align: center; margin-top: 10px; padding: 11px; background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px; color: #374151; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+  .guest-btn:hover { background: #f3f4f6; }
+  .divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+  .divider-line { flex: 1; height: 1px; background: #e5e7eb; }
+  .divider-text { font-size: 12px; color: #999; }
+  .new-user-note { font-size: 12px; color: #999; text-align: center; margin-top: 10px; }
+  .new-user-note span { color: #16a34a; font-weight: 600; }
+  .status-section { margin-top: 14px; background: #f8fafc; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 14px; }
+  .status-section-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .status-input-row { display: flex; gap: 8px; }
+  .status-input { flex: 1; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; }
+  .status-input:focus { border-color: #16a34a; }
+  .status-check-btn { padding: 9px 14px; background: #16a34a; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .status-check-btn:hover { background: #15803d; }
+  .status-result { margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: none; }
+  .status-pending { background: #fefce8; border: 1px solid #fde047; color: #a16207; }
+  .status-approved { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-weight: 700; }
+  .status-notfound { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; }
+</style>
+</head>
+<body>
+<div class="login-wrapper">
+  <div class="login-left">
+    <div class="login-logo">
+      <svg width="40" height="40" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="17" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+        <path d="M18 5C18 5 10 10 10 19C10 23.8 13 27.5 18 29C23 27.5 26 23.8 26 19C26 10 18 5 18 5Z" fill="#4ade80"/>
+        <path d="M18 11C18 11 14 14.5 14 19C14 21.8 15.5 24 18 25C20.5 24 22 21.8 22 19C22 14.5 18 11 18 11Z" fill="#16a34a"/>
+      </svg>
+      <span class="login-logo-name">PaddyGuard</span>
+      <span class="login-logo-ai">AI</span>
+    </div>
+    <h1 class="login-title">Smart Paddy<br/>Disease <span>Detection</span></h1>
+    <p class="login-desc">AI-powered leaf disease detection with chemical and organic treatment recommendations for paddy farmers.</p>
+    <div class="role-cards-label">Who can use PaddyGuard</div>
+    <div class="role-cards-row">
+      <div class="role-card">
+        <div class="role-icon">👨‍🌾</div>
+        <div class="role-name">Farmer</div>
+        <div class="role-desc">Detect diseases & get treatment</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🌿</div>
+        <div class="role-name">Sprayer</div>
+        <div class="role-desc">Spray schedules & reports</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🏪</div>
+        <div class="role-name">Shop Owner</div>
+        <div class="role-desc">Manage pesticide stock</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">⚙️</div>
+        <div class="role-name">Admin</div>
+        <div class="role-desc">Monitor all users & stats</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-card-title">Welcome 👋</div>
+    <div class="login-card-sub">Sign in or create a new account</div>
+
+    {% if error %}
+    <div class="error-msg">⚠ {{ error }}</div>
+    {% endif %}
+    {% if success %}
+    <div class="success-msg">✅ {{ success }}</div>
+    {% endif %}
+
+    <div class="role-tabs">
+      <button class="role-tab active-farmer" id="tab-farmer" onclick="selectRole('farmer')" type="button">
+        <span class="tab-icon">👨‍🌾</span>Farmer
+      </button>
+      <button class="role-tab" id="tab-sprayer" onclick="selectRole('sprayer')" type="button">
+        <span class="tab-icon">🌿</span>Sprayer
+      </button>
+      <button class="role-tab" id="tab-shop" onclick="selectRole('shop')" type="button">
+        <span class="tab-icon">🏪</span>Shop
+      </button>
+      <button class="role-tab" id="tab-admin" onclick="selectRole('admin')" type="button">
+        <span class="tab-icon">⚙️</span>Admin
+      </button>
+    </div>
+
+    <form method="POST" action="/login">
+      <input type="hidden" name="role" id="roleInput" value="farmer"/>
+      <div class="selected-role-display" id="roleDisplay">
+        <span>👨‍🌾</span> Signing in as <strong>Farmer</strong>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" name="email" placeholder="yourname@gmail.com" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" name="password" placeholder="At least 6 characters" required minlength="6"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name <span style="color:#999;font-weight:400">(for new accounts)</span></label>
+        <input class="form-input" type="text" name="name" placeholder="Your full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number <span style="color:#999;font-weight:400">(for new accounts)</span></label>
+        <input class="form-input" type="tel" name="phone" placeholder="+91 XXXXX XXXXX"/>
+      </div>
+      <button class="btn-login" type="submit">Sign In / Register →</button>
+    </form>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">or</div>
+      <div class="divider-line"></div>
+    </div>
+    <span class="guest-btn" title="Please login to use PaddyGuard" style="cursor: not-allowed; opacity: 0.5;">🌾 Guest Mode (Login Required)</span>
+    <div class="new-user-note">
+      New user? Just enter your email &amp; password —<br/>
+      <span>account will be created automatically!</span>
+    </div>
+
+    <!-- ── Check Approval Status ─────────────────────────── -->
+    <div class="status-section">
+      <div class="status-section-title">⏳ Check Your Approval Status</div>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Registered as Sprayer or Shop Owner? Enter your email to check if admin approved your account.</p>
+      <div class="status-input-row">
+        <input class="status-input" id="statusEmail" type="email" placeholder="Enter your email…" />
+        <button class="status-check-btn" onclick="checkStatus()" id="statusBtn">Check →</button>
+      </div>
+      <div class="status-result" id="statusResult"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const roleConfig = {
+  farmer:  { icon: '👨‍🌾', label: 'Farmer',     color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+  sprayer: { icon: '🌿',  label: 'Sprayer',    color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+  shop:    { icon: '🏪',  label: 'Shop Owner', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+  admin:   { icon: '⚙️', label: 'Admin',       color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+};
+function selectRole(role) {
+  document.getElementById('roleInput').value = role;
+  document.querySelectorAll('.role-tab').forEach(t => {
+    t.className = 'role-tab';
+  });
+  document.getElementById('tab-' + role).classList.add('active-' + role);
+  const cfg = roleConfig[role];
+  const disp = document.getElementById('roleDisplay');
+  disp.innerHTML = `<span>${cfg.icon}</span> Signing in as <strong>${cfg.label}</strong>`;
+  disp.style.color = cfg.color;
+  disp.style.borderColor = cfg.border;
+  disp.style.background = cfg.bg;
+}
+
+async function checkStatus() {
+  const email = document.getElementById('statusEmail').value.trim();
+  const btn = document.getElementById('statusBtn');
+  const result = document.getElementById('statusResult');
+  if (!email) { alert('Please enter your email.'); return; }
+  btn.textContent = 'Checking…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/check-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    });
+    const data = await res.json();
+    result.style.display = 'block';
+    result.className = 'status-result';
+    if (!data.found) {
+      result.classList.add('status-notfound');
+      result.innerHTML = '❌ Email not found. Please check and try again.';
+    } else if (data.not_applicable) {
+      result.classList.add('status-notfound');
+      result.innerHTML = `ℹ️ <strong>${data.role.charAt(0).toUpperCase()+data.role.slice(1)}</strong> accounts don't require admin approval. You can log in directly.`;
+    } else if (data.approved) {
+      result.classList.add('status-approved');
+      result.innerHTML = `✅ <strong>Approved!</strong> Your ${data.role} account has been approved by admin. You can now <a href="/login" style="color:#15803d">Login</a>.`;
+    } else {
+      result.classList.add('status-pending');
+      result.innerHTML = '⏳ <strong>Pending Approval</strong> — Your account is waiting for admin approval. Please check back soon.';
+    }
+  } catch(e) {
+    result.style.display = 'block';
+    result.className = 'status-result status-notfound';
+    result.innerHTML = '⚠ Could not check status. Please try again.';
+  }
+  btn.textContent = 'Check →'; btn.disabled = false;
+}
+</script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(reg => console.log('ServiceWorker registered'))
+          .catch(err => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
+  </script>
+</body>
+
+</html>

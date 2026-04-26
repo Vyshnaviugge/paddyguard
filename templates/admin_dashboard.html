@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- PWA Setup -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaddyGuard — Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Modern CSS Reset & Variables */
+:root {
+  --primary: #15803d;
+  --primary-dark: #166534;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --glass-blur: blur(16px);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { 
+  font-family: 'Inter', sans-serif; 
+  background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--text-main); 
+  min-height: 100vh; 
+  display: flex; 
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px; background: var(--bg-card); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--border-color);
+  padding: 24px; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 10;
+}
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+.brand-icon { font-size: 24px; background: linear-gradient(135deg, #15803d, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand h2 { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+
+.nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.nav-item {
+  padding: 12px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 600;
+  display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover, .nav-item.active { background: rgba(21, 128, 61, 0.1); color: var(--primary); }
+.nav-item.active { border-left: 4px solid var(--primary); }
+
+.user-profile {
+  margin-top: auto; padding: 16px; background: rgba(255,255,255,0.6); border-radius: 12px;
+  display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-color);
+}
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #15803d, #22c55e); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+.user-info h4 { font-size: 14px; margin-bottom: 2px; }
+.user-info p { font-size: 12px; color: var(--text-muted); }
+.logout-btn { color: #ef4444; font-size: 12px; text-decoration: none; margin-top:4px; display:block; }
+
+/* Main Content */
+.main-content { margin-left: 260px; flex: 1; padding: 32px 40px; max-width: calc(100% - 260px); }
+
+/* Header Elements */
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; background: rgba(255,255,255,0.85); padding: 24px; border-radius: 20px; backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); }
+.page-title h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #111827; }
+.page-title p { color: var(--text-muted); font-size: 14px; }
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+.stat-card {
+  background: var(--bg-card); backdrop-filter: var(--glass-blur); padding: 24px; border-radius: 20px;
+  border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--primary); }
+.stat-card.blue::before { background: #3b82f6; }
+.stat-card.red::before { background: #ef4444; }
+.stat-card.amber::before { background: #f59e0b; }
+.stat-value { font-size: 36px; font-weight: 800; margin: 12px 0 4px; color: #111827; }
+.stat-label { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+.stat-icon { position: absolute; top: 24px; right: 24px; font-size: 24px; opacity: 0.5; }
+
+/* Charts */
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 32px; }
+.chart-card { background: var(--bg-card); backdrop-filter: var(--glass-blur); padding: 24px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.chart-card h3 { font-size: 16px; margin-bottom: 16px; color: #111827; font-weight: 700; }
+
+/* Panels & Tables */
+.panel { display: none; animation: fadeIn 0.4s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.data-card { background: var(--bg-card); backdrop-filter: var(--glass-blur); border-radius: 20px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.data-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+.search-box { background: rgba(255,255,255,0.8); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 12px; width: 300px; color: #111827; outline: none; transition: border-color 0.3s; }
+.search-box:focus { border-color: var(--primary); }
+.export-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+.export-btn:hover { background: var(--primary-dark); }
+
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { padding: 16px 24px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); font-weight: 600; background: rgba(0,0,0,0.02); }
+td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+tr:hover td { background: rgba(0,0,0,0.02); }
+
+/* Badges */
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.badge.green { background: rgba(21, 128, 61, 0.15); color: #15803d; border: 1px solid rgba(21, 128, 61, 0.3); }
+.badge.red { background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge.blue { background: rgba(37, 99, 235, 0.15); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); }
+.badge.amber { background: rgba(217, 119, 6, 0.15); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.3); }
+
+.approve-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; transition: background 0.3s; }
+.approve-btn:hover { background: #1d4ed8; }
+.empty { text-align: center; color: var(--text-muted); padding: 40px; }
+
+
+@media(max-width:768px){
+  .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 16px; }
+  .main-content { margin-left: 0; padding: 16px; max-width: 100%; }
+  .nav-menu { flex-direction: row; flex-wrap: wrap; gap: 5px; width: 100%; margin-top: 10px; }
+  .nav-item { flex: 1; min-width: 120px; padding: 8px; justify-content: center; }
+  .user-profile { display: none; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .charts-wrapper { grid-template-columns: 1fr; }
+  .table-container { overflow-x: auto; display: block; width: 100%; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">🌾</div>
+    <h2>PaddyGuard<span style="color:var(--primary)">.AI</span></h2>
+  </div>
+  
+  <div class="nav-menu">
+    <button class="nav-item active" onclick="switchPanel('dashboard', this)">
+      <span>📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="switchPanel('predictions', this)">
+      <span>🔬</span> Predictions
+    </button>
+    <button class="nav-item" onclick="switchPanel('users', this)">
+      <span>👥</span> Users
+    </button>
+    <button class="nav-item" onclick="switchPanel('approvals', this)">
+      <span>✅</span> Pending Approvals
+      {% if pending_users|length > 0 %}<span style="margin-left:auto; background:#ef4444; padding:2px 8px; border-radius:10px; font-size:11px; color: white;">{{ pending_users|length }}</span>{% endif %}
+    </button>
+    <button class="nav-item" onclick="switchPanel('bookings', this)">
+      <span>🤝</span> Bookings
+    </button>
+  </div>
+
+  <div class="user-profile">
+    <div class="avatar">{{ user.name[0] }}</div>
+    <div class="user-info">
+      <h4>{{ user.name }}</h4>
+      <p>Administrator</p>
+      <a href="/logout" class="logout-btn">Log out</a>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+  
+  <!-- Dashboard Overview Panel -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Overview</h1>
+        <p>Welcome back, here's what's happening today.</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ users | length }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">🔬</div>
+        <div class="stat-value">{{ history | length }}</div>
+        <div class="stat-label">Total Scans</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">⚠</div>
+        <div class="stat-value">{{ history | selectattr('severity', 'equalto', 'Critical') | list | length }}</div>
+        <div class="stat-label">Critical Cases</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-icon">🌿</div>
+        <div class="stat-value">{{ history | selectattr('severity', 'equalto', 'No Disease') | list | length }}</div>
+        <div class="stat-label">Healthy Scans</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card" id="disease-container">
+        <h3>Disease Detection Breakdown</h3>
+        <canvas id="diseaseChart"></canvas>
+      </div>
+      <div class="chart-card" id="roles-container">
+        <h3>User Roles Distribution</h3>
+        <canvas id="rolesChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Predictions Panel -->
+  <div class="panel" id="panel-predictions">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Recent Predictions</h1>
+        <p>AI disease detection history across the platform.</p>
+      </div>
+    </div>
+    <div class="data-card">
+      <div class="data-header">
+        <input type="text" class="search-box" placeholder="Search predictions..." oninput="filterTable('pred-table', this.value)">
+        <button class="export-btn" onclick="exportTableToCSV('pred-table', 'predictions.csv')">Export CSV</button>
+      </div>
+      <table id="pred-table">
+        <thead>
+          <tr>
+            <th>User</th><th>Role</th><th>Disease</th><th>Confidence</th><th>Severity</th><th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr>
+            <td>
+              <div style="font-weight:600; margin-bottom:4px;">{{ h.user }}</div>
+              <div style="font-size:12px; color:var(--text-muted);">{{ h.email }}</div>
+            </td>
+            <td>
+              {% if h.role == 'farmer' %}<span class="badge blue">Farmer</span>
+              {% elif h.role == 'sprayer' %}<span class="badge green">Sprayer</span>
+              {% elif h.role == 'admin' %}<span class="badge amber">Admin</span>
+              {% else %}<span class="badge amber">{{ h.role | title }}</span>{% endif %}
+            </td>
+            <td style="font-weight:600;">{{ h.disease }}</td>
+            <td>{{ h.confidence }}%</td>
+            <td>
+              {% if h.severity == 'No Disease' %}<span class="badge green">✓ Healthy</span>
+              {% elif h.severity == 'Critical' %}<span class="badge red">⚠ Critical</span>
+              {% elif h.severity == 'High' %}<span class="badge red">High</span>
+              {% elif h.severity == 'Moderate' %}<span class="badge amber">Moderate</span>
+              {% else %}<span class="badge amber">{{ h.severity }}</span>{% endif %}
+            </td>
+            <td style="color:var(--text-muted);">
+              {{ h.timestamp.strftime('%d %b %Y, %H:%M') if h.timestamp else '—' }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty">No predictions yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Users Panel -->
+  <div class="panel" id="panel-users">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>User Management</h1>
+        <p>Active users registered on PaddyGuard.</p>
+      </div>
+    </div>
+    <div class="data-card">
+      <div class="data-header">
+        <input type="text" class="search-box" placeholder="Search users..." oninput="filterTable('users-table', this.value)">
+        <button class="export-btn" onclick="exportTableToCSV('users-table', 'users.csv')">Export CSV</button>
+      </div>
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>User Info</th><th>Role</th><th>Phone</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="font-weight:600; margin-bottom:4px;">{{ u.name }}</div>
+              <div style="font-size:12px; color:var(--text-muted);">{{ u.email }}</div>
+            </td>
+            <td>
+              {% if u.role == 'farmer' %}<span class="badge blue">Farmer</span>
+              {% elif u.role == 'sprayer' %}<span class="badge green">Sprayer</span>
+              {% elif u.role == 'admin' %}<span class="badge amber">Admin</span>
+              {% else %}<span class="badge amber">{{ u.role | title }}</span>{% endif %}
+            </td>
+            <td style="color:var(--text-muted);">{{ u.phone if u.phone else '—' }}</td>
+            <td><span class="badge green">Active</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No users found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Approvals Panel -->
+  <div class="panel" id="panel-approvals">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Pending Approvals</h1>
+        <p>Review and approve Sprayer and Shop Owner accounts.</p>
+      </div>
+    </div>
+    <div class="data-card">
+      <div class="data-header">
+        <input type="text" class="search-box" placeholder="Search pending accounts..." oninput="filterTable('approvals-table', this.value)">
+      </div>
+      <table id="approvals-table">
+        <thead>
+          <tr>
+            <th>Applicant</th><th>Requested Role</th><th>Phone</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in pending_users %}
+          <tr>
+            <td>
+              <div style="font-weight:600; margin-bottom:4px;">{{ u.name }}</div>
+              <div style="font-size:12px; color:var(--text-muted);">{{ u.email }}</div>
+            </td>
+            <td>
+              {% if u.role == 'sprayer' %}<span class="badge green">Sprayer</span>
+              {% elif u.role == 'shop' %}<span class="badge amber">Shop Owner</span>
+              {% else %}<span class="badge blue">{{ u.role | title }}</span>{% endif %}
+            </td>
+            <td style="color:var(--text-muted);">{{ u.phone if u.phone else '—' }}</td>
+            <td>
+              <button class="approve-btn" onclick="approveUser('{{ u.email }}')">Approve User</button>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No pending approvals at this time.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bookings Panel -->
+  <div class="panel" id="panel-bookings">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Service Bookings</h1>
+        <p>Sprayer booking requests and statuses.</p>
+      </div>
+    </div>
+    <div class="data-card">
+      <div class="data-header">
+        <input type="text" class="search-box" placeholder="Search bookings..." oninput="filterTable('bookings-table', this.value)">
+        <button class="export-btn" onclick="exportTableToCSV('bookings-table', 'bookings.csv')">Export CSV</button>
+      </div>
+      <table id="bookings-table">
+        <thead>
+          <tr>
+            <th>Ref #</th><th>Farmer</th><th>Sprayer</th><th>Service Date</th><th>Acres</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td style="font-family:monospace; color:var(--text-muted);">{{ b.ref }}</td>
+            <td style="font-weight:600;">{{ b.farmer_name }}</td>
+            <td style="font-weight:600;">{{ b.sprayer_name }}</td>
+            <td style="color:var(--text-muted);">{{ b.date }} ({{ b.time_slot }})</td>
+            <td>{{ b.acres }}</td>
+            <td>
+              {% if b.status == 'pending' %}<span class="badge amber">Pending</span>
+              {% elif b.status == 'accepted' %}<span class="badge green">Accepted</span>
+              {% elif b.status == 'declined' %}<span class="badge red">Declined</span>
+              {% else %}<span class="badge blue">{{ b.status | title }}</span>{% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty">No bookings found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchPanel(panelId, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + panelId).classList.add('active');
+  btn.classList.add('active');
+}
+
+function filterTable(tableId, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#' + tableId + ' tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function approveUser(email) {
+  if(!confirm('Approve this account? An email notification will be sent.')) return;
+  fetch('/api/admin/approve-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+  }).then(r => r.json()).then(res => {
+    if(res.success) {
+      alert('User approved successfully!');
+      location.reload();
+    } else {
+      alert(res.error || 'Failed to approve user');
+    }
+  });
+}
+
+function exportTableToCSV(table_id, filename) {
+  let csv = [];
+  let rows = document.querySelectorAll("#" + table_id + " tr");
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i].querySelector('.empty')) continue;
+    let row = [], cols = rows[i].querySelectorAll("td, th");
+    for (let j = 0; j < cols.length; j++) 
+      row.push('"' + cols[j].innerText.trim().replace(/"/g, '""') + '"');
+    csv.push(row.join(","));        
+  }
+  let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+  let downloadLink = document.createElement("a");
+  downloadLink.download = filename;
+  downloadLink.href = window.URL.createObjectURL(csvFile);
+  downloadLink.style.display = "none";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.font.family = 'Inter';
+  
+  // Disease Chart
+  const diseaseCounts = {};
+  document.querySelectorAll('#pred-table tbody tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length > 2 && !row.querySelector('.empty')) {
+      const disease = cells[2].innerText.trim();
+      diseaseCounts[disease] = (diseaseCounts[disease] || 0) + 1;
+    }
+  });
+
+  const dLabels = Object.keys(diseaseCounts);
+  const dData = Object.values(diseaseCounts);
+  
+  if (dLabels.length > 0) {
+    new Chart(document.getElementById('diseaseChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: dLabels,
+        datasets: [{
+          data: dData,
+          backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'right' } }, cutout: '75%' }
+    });
+  } else { document.getElementById('disease-container').style.display = 'none'; }
+
+  // Roles Chart
+  const roleCounts = {};
+  document.querySelectorAll('#users-table tbody tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length > 1 && !row.querySelector('.empty')) {
+      const role = cells[1].innerText.trim();
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+    }
+  });
+
+  const rLabels = Object.keys(roleCounts);
+  const rData = Object.values(roleCounts);
+  
+  if (rLabels.length > 0) {
+    new Chart(document.getElementById('rolesChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: rLabels,
+        datasets: [{
+          data: rData,
+          backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'right' } }, cutout: '75%' }
+    });
+  } else { document.getElementById('roles-container').style.display = 'none'; }
+});
+</script>
+
+{%- include "chatbot_widget.html" -%}
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(reg => console.log('ServiceWorker registered'))
+          .catch(err => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
+  </script>
+</body>
+
+</html>

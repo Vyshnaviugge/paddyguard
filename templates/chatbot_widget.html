@@ -1,0 +1,673 @@
+<!-- ══════════════════════════════════════════
+     PaddyGuard AI Chatbot Widget — Context Aware
+     ══════════════════════════════════════════ -->
+
+<!-- Inject server-side context as JS variables -->
+<script>
+  window.PG_CONTEXT = {
+    userRole:  "{{ session.get('user', {}).get('role', 'guest') }}",
+    userName:  "{{ session.get('user', {}).get('name', 'User') }}",
+    userEmail: "{{ session.get('user', {}).get('email', '') }}"
+  };
+</script>
+
+<style>
+#pg-chat-btn {
+  position: fixed; bottom: 28px; right: 28px;
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e88e5, #0d47a1);
+  box-shadow: 0 6px 24px rgba(21,101,192,0.55);
+  cursor: pointer; z-index: 9999; border: none; padding: 0;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+#pg-chat-btn:hover { transform: scale(1.12); box-shadow: 0 10px 32px rgba(21,101,192,0.7); }
+#pg-chat-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+#pg-chat-btn::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  border: 3px solid rgba(30,136,229,0.5); animation: pg-pulse 2s infinite;
+}
+@keyframes pg-pulse { 0%{transform:scale(1);opacity:1} 70%,100%{transform:scale(1.3);opacity:0} }
+
+#pg-chat-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: #ef4444; color: #fff; font-size: 11px; font-weight: 700;
+  width: 20px; height: 20px; border-radius: 50%;
+  align-items: center; justify-content: center;
+  border: 2px solid #fff; display: none;
+}
+
+/* Context tag strip */
+#pg-context-strip {
+  padding: 6px 12px;
+  font-size: 11px; font-family: 'Segoe UI', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  background: #f0fdf4; border-bottom: 1px solid #d1fae5;
+  flex-shrink: 0;
+}
+.pg-ctx-tag {
+  background: #dcfce7; color: #166534; border-radius: 20px;
+  padding: 2px 10px; font-weight: 600; font-size: 11px;
+}
+.pg-ctx-role {
+  background: #dbeafe; color: #1e40af; border-radius: 20px;
+  padding: 2px 10px; font-weight: 600; font-size: 11px;
+}
+
+#pg-chat-panel {
+  position: fixed; bottom: 104px; right: 28px;
+  width: 370px; max-height: 560px;
+  background: #fff; border-radius: 20px;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.22);
+  display: flex; flex-direction: column; z-index: 9998;
+  overflow: hidden;
+  transform: scale(0.85) translateY(30px); transform-origin: bottom right;
+  opacity: 0; pointer-events: none;
+  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.25s ease;
+}
+#pg-chat-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+
+#pg-chat-header {
+  background: linear-gradient(135deg, #1565c0, #1e88e5);
+  padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+#pg-chat-header img { width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); object-fit: cover; }
+.pg-header-info { flex: 1; }
+.pg-header-info h4 { color: #fff; margin: 0; font-size: 14px; font-weight: 700; font-family: 'Segoe UI', sans-serif; }
+.pg-header-info span { color: rgba(255,255,255,0.8); font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+.pg-status-dot { width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1.4s infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+#pg-close-btn {
+  background: rgba(255,255,255,0.2); border: none; color: #fff;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+}
+#pg-close-btn:hover { background: rgba(255,255,255,0.35); }
+
+#pg-messages {
+  flex: 1; overflow-y: auto; padding: 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  background: #f8fafc; scroll-behavior: smooth;
+}
+#pg-messages::-webkit-scrollbar { width: 4px; }
+#pg-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+.pg-msg { display: flex; align-items: flex-end; gap: 6px; animation: pg-fadein 0.25s ease; }
+@keyframes pg-fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pg-msg.user { flex-direction: row-reverse; }
+
+.pg-bubble {
+  max-width: 82%; padding: 10px 14px; border-radius: 18px;
+  font-size: 13px; line-height: 1.55; font-family: 'Segoe UI', sans-serif;
+  white-space: pre-wrap; word-break: break-word;
+}
+.pg-msg.bot .pg-bubble { background:#fff;color:#1e293b;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.pg-msg.user .pg-bubble { background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;border-bottom-right-radius:4px; }
+.pg-avatar { width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0; }
+.pg-avatar.user-av { background:linear-gradient(135deg,#1565c0,#1e88e5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700; }
+
+#pg-typing { display:none;align-items:flex-end;gap:6px; }
+#pg-typing .pg-bubble { padding:10px 16px; }
+.pg-dots span { display:inline-block;width:7px;height:7px;background:#94a3b8;border-radius:50%;margin:0 2px;animation:pg-dot 1.2s infinite; }
+.pg-dots span:nth-child(2){animation-delay:0.2s}.pg-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes pg-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+#pg-input-area { display:flex;align-items:center;gap:6px;padding:10px 12px;border-top:1px solid #e2e8f0;background:#fff;flex-shrink:0; }
+#pg-input {
+  flex:1; border:1.5px solid #e2e8f0; border-radius:24px; padding:9px 14px;
+  font-size:13px; font-family:'Segoe UI',sans-serif; outline:none; resize:none;
+  max-height:90px; background:#f8fafc; transition:border-color 0.2s; color:#1e293b;
+}
+#pg-input:focus{border-color:#1e88e5;background:#fff}
+#pg-input::placeholder{color:#94a3b8}
+
+/* Mic button */
+#pg-mic-btn {
+  width:38px;height:38px;background:#f1f5f9;border:1.5px solid #e2e8f0;
+  border-radius:50%;color:#64748b;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;flex-shrink:0;font-size:16px;
+}
+#pg-mic-btn:hover{background:#fee2e2;border-color:#fca5a5;color:#ef4444}
+#pg-mic-btn.listening{background:#fee2e2;border-color:#ef4444;color:#ef4444;animation:pg-mic-pulse 1s infinite}
+@keyframes pg-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+
+#pg-send-btn {
+  width:38px;height:38px;background:linear-gradient(135deg,#1565c0,#1e88e5);
+  border:none;border-radius:50%;color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s,box-shadow 0.2s;flex-shrink:0;
+}
+#pg-send-btn:hover{transform:scale(1.1);box-shadow:0 4px 14px rgba(21,101,192,0.5)}
+#pg-send-btn svg{width:16px;height:16px}
+
+/* Language toggle */
+#pg-lang-bar {
+  display:flex;align-items:center;gap:6px;padding:6px 12px;
+  background:#fefce8;border-bottom:1px solid #fde68a;flex-shrink:0;
+}
+#pg-lang-bar span{font-size:11px;color:#854d0e;font-family:'Segoe UI',sans-serif;flex:1}
+#pg-lang-toggle {
+  background:#fbbf24;border:none;color:#fff;border-radius:12px;
+  padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  font-family:'Segoe UI',sans-serif;transition:background 0.2s;
+}
+#pg-lang-toggle:hover{background:#f59e0b}
+
+/* Speaker button on bot messages */
+.pg-speak-btn {
+  background:none;border:none;cursor:pointer;font-size:13px;
+  color:#94a3b8;margin-top:4px;padding:2px 4px;border-radius:6px;
+  transition:color 0.2s,background 0.2s;display:block;
+}
+.pg-speak-btn:hover{color:#1e88e5;background:#e0f2fe}
+.pg-speak-btn.speaking{color:#ef4444;animation:blink 0.8s infinite}
+
+#pg-suggestions { padding:0 12px 10px;display:flex;flex-wrap:wrap;gap:6px;background:#f8fafc; }
+.pg-chip {
+  background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;
+  padding:5px 12px;font-size:11px;font-family:'Segoe UI',sans-serif;cursor:pointer;
+  transition:background 0.2s;white-space:nowrap;
+}
+.pg-chip:hover{background:#bae6fd}
+
+@media(max-width:480px){
+  #pg-chat-panel{right:10px;left:10px;width:auto;bottom:90px}
+  #pg-chat-btn{right:16px;bottom:16px}
+}
+</style>
+
+<!-- Floating Button -->
+<button id="pg-chat-btn" onclick="pgToggleChat()" title="Chat with PaddyGuard AI">
+  <img src="/static/chatbot_icon.png" alt="AI Chat" onerror="this.style.display='none';this.parentElement.innerHTML+='🤖';">
+  <span id="pg-chat-badge">1</span>
+</button>
+
+<!-- Chat Panel -->
+<div id="pg-chat-panel">
+
+  <!-- Header -->
+  <div id="pg-chat-header">
+    <img src="/static/chatbot_icon.png" alt="PaddyGuard AI" onerror="this.style.display='none'">
+    <div class="pg-header-info">
+      <h4>PaddyGuard AI</h4>
+      <span><span class="pg-status-dot"></span><span id="pg-header-subtitle">Farming Assistant</span></span>
+    </div>
+    <button id="pg-close-btn" onclick="pgToggleChat()">✕</button>
+  </div>
+
+  <!-- Language Bar -->
+  <div id="pg-lang-bar">
+    <span id="pg-lang-label">🌐 Language: <strong>English</strong> — Farmer can type in Telugu too!</span>
+    <button id="pg-lang-toggle" onclick="pgToggleLang()">తెలుగు</button>
+  </div>
+
+  <!-- Context Strip -->
+  <div id="pg-context-strip">
+    📍 <span class="pg-ctx-tag" id="pg-page-tag">Loading...</span>
+    <span class="pg-ctx-role" id="pg-role-tag">User</span>
+  </div>
+
+  <!-- Messages -->
+  <div id="pg-messages">
+    <div class="pg-msg bot">
+      <img class="pg-avatar" src="/static/chatbot_icon.png" alt="bot" onerror="this.style.display='none'">
+      <div class="pg-bubble" id="pg-welcome-msg">
+        👋 Hello! I'm your <strong>PaddyGuard AI Assistant</strong>.<br><br>
+        What can I help you with today?
+      </div>
+    </div>
+  </div>
+
+  <!-- Typing indicator -->
+  <div id="pg-typing" class="pg-msg bot" style="padding:0 12px 6px;">
+    <img class="pg-avatar" src="/static/chatbot_icon.png" alt="bot" onerror="this.style.display='none'">
+    <div class="pg-bubble"><div class="pg-dots"><span></span><span></span><span></span></div></div>
+  </div>
+
+  <!-- Suggested chips (dynamic per page) -->
+  <div id="pg-suggestions"></div>
+
+  <!-- Input -->
+  <div id="pg-input-area">
+    <button id="pg-mic-btn" onclick="pgToggleMic()" title="మాట్లాడండి / Speak in Telugu">
+      🎤
+    </button>
+    <textarea id="pg-input" rows="1" placeholder="Ask me anything / తెలుగులో అడగండి..."
+      onkeydown="pgHandleKey(event)" oninput="pgAutoResize(this)"></textarea>
+    <button id="pg-send-btn" onclick="pgSend()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  let pgOpen = false;
+  let pgHistory = [];
+  let pgContextData = {};
+  let pgLang = 'en';          // 'en' or 'te'
+  let pgRecognition = null;
+  let pgListening = false;
+  let pgSpeaking = false;
+  let pgCurrentUtterance = null;
+  let audioUnlocked = false;
+
+  // Unlock Audio on first tap (mobile fix)
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    try {
+      const a = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
+      a.play().catch(()=>{});
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance('');
+        u.volume = 0; window.speechSynthesis.speak(u);
+      }
+      audioUnlocked = true;
+    } catch(e){}
+  }
+  document.addEventListener('click', unlockAudio, {once:true});
+
+  /* ── LANGUAGE TOGGLE ────────────────────────── */
+  window.pgToggleLang = function() {
+    pgLang = pgLang === 'en' ? 'te' : 'en';
+    const label = document.getElementById('pg-lang-label');
+    const btn   = document.getElementById('pg-lang-toggle');
+    const input = document.getElementById('pg-input');
+    if (pgLang === 'te') {
+      label.innerHTML = '🌐 భాష: <strong>తెలుగు</strong> — తెలుగులో మాట్లాడండి!';
+      btn.textContent = 'English';
+      input.placeholder = 'తెలుగులో అడగండి... లేదా మైక్ నొక్కండి';
+    } else {
+      label.innerHTML = '🌐 Language: <strong>English</strong> — Farmer can type in Telugu too!';
+      btn.textContent = 'తెలుగు';
+      input.placeholder = 'Ask me anything / తెలుగులో అడగండి...';
+    }
+  };
+
+  /* ── VOICE INPUT (Speech Recognition) ────────── */
+  window.pgToggleMic = function() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      pgAddBubble('bot', '⚠️ మీ బ్రౌజర్ వాయిస్ ఇన్‌పుట్‌ని సపోర్ట్ చేయడం లేదు. Chrome వాడండి.\n(Your browser does not support voice input. Please use Chrome.)');
+      return;
+    }
+    if (pgListening) {
+      pgRecognition && pgRecognition.stop();
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    pgRecognition = new SpeechRecognition();
+    pgRecognition.lang = pgLang === 'te' ? 'te-IN' : 'te-IN';  // Always allow Telugu
+    pgRecognition.interimResults = false;
+    pgRecognition.maxAlternatives = 1;
+    pgRecognition.continuous = false;
+
+    const micBtn = document.getElementById('pg-mic-btn');
+    const input  = document.getElementById('pg-input');
+
+    pgRecognition.onstart = () => {
+      pgListening = true;
+      micBtn.classList.add('listening');
+      micBtn.textContent = '🔴';
+      input.placeholder = pgLang === 'te' ? 'వింటున్నాను...' : 'Listening...';
+    };
+
+    pgRecognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      input.value = transcript;
+      pgAutoResize(input);
+      // Auto-detect Telugu and switch language
+      if (/[\u0C00-\u0C7F]/.test(transcript)) {
+        pgLang = 'te';
+        pgToggleLangSilent('te');
+      }
+      setTimeout(() => pgSend(), 300);
+    };
+
+    pgRecognition.onerror = (e) => {
+      pgListening = false;
+      micBtn.classList.remove('listening');
+      micBtn.textContent = '🎤';
+      input.placeholder = pgLang === 'te' ? 'తెలుగులో అడగండి...' : 'Ask me anything...';
+      if (e.error !== 'no-speech') {
+        pgAddBubble('bot', '⚠️ వాయిస్ లోపం: ' + e.error + '\nVoice error: ' + e.error);
+      }
+    };
+
+    pgRecognition.onend = () => {
+      pgListening = false;
+      micBtn.classList.remove('listening');
+      micBtn.textContent = '🎤';
+      input.placeholder = pgLang === 'te' ? 'తెలుగులో అడగండి...' : 'Ask me anything...';
+    };
+
+    pgRecognition.start();
+  };
+
+  function pgToggleLangSilent(lang) {
+    pgLang = lang;
+    const label = document.getElementById('pg-lang-label');
+    const btn   = document.getElementById('pg-lang-toggle');
+    if (lang === 'te') {
+      label.innerHTML = '🌐 భాష: <strong>తెలుగు</strong> — తెలుగులో మాట్లాడండి!';
+      btn.textContent = 'English';
+    }
+  }
+
+  /* ── VOICE OUTPUT (Text-to-Speech) ──────────── */
+  function pgSpeak(text, btnEl) {
+    // Strip HTML tags for speech
+    const clean = text.replace(/<[^>]+>/g,'').replace(/[•\-]/g,'').trim();
+    const isTeluguText = /[\u0C00-\u0C7F]/.test(clean);
+
+    if (pgSpeaking) {
+      if (window.pgCurrentAudio) { window.pgCurrentAudio.pause(); window.pgCurrentAudio = null; }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      pgSpeaking = false;
+      document.querySelectorAll('.pg-speak-btn').forEach(b => { b.textContent='🔊'; b.classList.remove('speaking'); });
+      return;
+    }
+
+    if (btnEl) { btnEl.textContent = '⏹️'; btnEl.classList.add('speaking'); pgSpeaking = true; }
+
+    // If Telugu, use reliable reliable audio API fallback (Google Translate TTS works universally better for Indian languages)
+    if (isTeluguText) {
+       // Use our backend proxy to avoid browser auto-blocking cross-origin audio
+       const limitedText = clean.substring(0, 190);
+       const url = "/api/tts?lang=te&text=" + encodeURIComponent(limitedText);
+       const audio = new Audio(url);
+       window.pgCurrentAudio = audio;
+       
+       audio.onended = () => {
+         pgSpeaking = false;
+         if (btnEl) { btnEl.textContent = '🔊'; btnEl.classList.remove('speaking'); }
+       };
+       audio.onerror = () => {
+         runWebSpeech(clean, btnEl, isTeluguText);
+       };
+       audio.play().catch(e => {
+         runWebSpeech(clean, btnEl, isTeluguText);
+       });
+       return;
+    }
+
+    runWebSpeech(clean, btnEl, isTeluguText);
+  }
+
+  function runWebSpeech(clean, btnEl, isTeluguText) {
+    if (!('speechSynthesis' in window)) return;
+    const utter = new SpeechSynthesisUtterance(clean);
+    pgCurrentUtterance = utter;
+    utter.lang = isTeluguText ? 'te-IN' : (pgLang === 'te' ? 'te-IN' : 'en-IN');
+    utter.rate = 0.9;
+
+    const voices = window.speechSynthesis.getVoices();
+    const teluguVoice = voices.find(v => v.lang === 'te-IN' || v.lang.startsWith('te'));
+    const indianVoice = voices.find(v => v.lang === 'en-IN');
+    if (isTeluguText && teluguVoice) utter.voice = teluguVoice;
+    else if (!isTeluguText && indianVoice) utter.voice = indianVoice;
+
+    utter.onend = () => {
+      pgSpeaking = false;
+      if (btnEl) { btnEl.textContent = '🔊'; btnEl.classList.remove('speaking'); }
+    };
+    utter.onerror = () => {
+      pgSpeaking = false;
+      if (btnEl) { btnEl.textContent = '🔊'; btnEl.classList.remove('speaking'); }
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  /* ── PAGE DETECTION ─────────────────────────────── */
+  const PAGE_CONFIG = {
+    '/detect': {
+      label: '🔬 Disease Detection',
+      subtitle: 'Disease Detection · AI Help',
+      chips: ['How do I upload a photo?', 'What diseases can be detected?', 'My result shows Leaf Blast — what now?', 'Explain my confidence score'],
+      welcome: '🔬 I see you\'re on the <strong>Disease Detection</strong> page.<br><br>You can upload a paddy leaf photo and I can:<br>• Explain your detection result<br>• Recommend pesticides for the detected disease<br>• Tell you the urgency level<br><br>What would you like to know?'
+    },
+    '/dashboard': {
+      label: '📊 Dashboard',
+      subtitle: 'Dashboard · Your Overview',
+      chips: ['How do I book a sprayer?', 'View my scan history', 'What does severity level mean?', 'How to read my results?'],
+      welcome: '📊 Welcome to your <strong>Dashboard</strong>!<br><br>I can help you:<br>• Navigate your scan history<br>• Book a pesticide sprayer<br>• Understand your disease reports<br>• Answer farming questions<br><br>What do you need help with?'
+    },
+    '/map': {
+      label: '🗺️ Sprayer Map',
+      subtitle: 'Map · Find Sprayers',
+      chips: ['How do I find nearby sprayers?', 'How to book a sprayer?', 'What is the booking process?', 'Best sprayer for Neck Blast?'],
+      welcome: '🗺️ You\'re on the <strong>Sprayer Map</strong> page.<br><br>I can help you:<br>• Find the right sprayer for your disease<br>• Explain the booking process<br>• Suggest which pesticide to ask the sprayer to use<br><br>Which disease are you dealing with?'
+    },
+    '/sprayer-dashboard': {
+      label: '🧑‍🌾 Sprayer Portal',
+      subtitle: 'Sprayer Dashboard',
+      chips: ['How to accept a booking?', 'Which pesticide for Sheath Blight?', 'Correct dosage for Carbendazim?', 'Safety tips for spraying'],
+      welcome: '🧑‍🌾 Hello Sprayer! I\'m here to assist you.<br><br>I can help with:<br>• Correct pesticide dosages<br>• Managing your bookings<br>• Safety precautions while spraying<br>• Disease treatment schedules<br><br>What do you need today?'
+    },
+    '/admin-dashboard': {
+      label: '⚙️ Admin Panel',
+      subtitle: 'Admin · System Overview',
+      chips: ['How many users are registered?', 'Top detected diseases today', 'Any pending bookings?', 'System health tips'],
+      welcome: '⚙️ Welcome, <strong>Admin</strong>!<br><br>I can assist with:<br>• Understanding platform analytics<br>• Disease outbreak trends<br>• Managing user issues<br>• Booking status summaries<br><br>What would you like to check?'
+    },
+    '/shop-dashboard': {
+      label: '🛒 Agri Shop',
+      subtitle: 'Shop Dashboard',
+      chips: ['Which pesticides sell most?', 'Recommend stock for Leaf Blast', 'Organic alternatives to stock', 'Which fungicide for Brown Spot?'],
+      welcome: '🛒 Welcome to your <strong>Agri Shop</strong> portal!<br><br>I can help you:<br>• Recommend pesticides to stock based on disease trends<br>• Provide chemical and organic product details<br>• Suggest dosages for customers<br><br>What product info do you need?'
+    },
+  };
+
+  const DEFAULT_CONFIG = {
+    label: '🌾 PaddyGuard',
+    subtitle: 'Farming Assistant',
+    chips: ['What is Leaf Blast?', 'Tungro symptoms?', 'Organic pest control', 'Prevent Sheath Blight'],
+    welcome: '👋 Hello <strong>NAME</strong>! I\'m your <strong>PaddyGuard AI Assistant</strong>.<br><br>I can help you with paddy disease detection, pesticide recommendations, crop management tips, and much more.<br><br>What can I help you with today?'
+  };
+
+  function getPageConfig() {
+    const path = window.location.pathname.replace(/\/$/, '') || '/dashboard';
+    // Match exact or prefix
+    for (const key of Object.keys(PAGE_CONFIG)) {
+      if (path === key || path.startsWith(key)) return { ...PAGE_CONFIG[key], path };
+    }
+    return { ...DEFAULT_CONFIG, path };
+  }
+
+  function buildContext() {
+    const cfg = getPageConfig();
+    const role = (window.PG_CONTEXT && window.PG_CONTEXT.userRole) || 'farmer';
+    const name = (window.PG_CONTEXT && window.PG_CONTEXT.userName) || 'User';
+    const email = (window.PG_CONTEXT && window.PG_CONTEXT.userEmail) || '';
+
+    // Grab last diagnosis result if on detect page
+    let lastDiagnosis = null;
+    try {
+      const resultEl = document.querySelector('#rc-name') || document.querySelector('#resultName') || document.querySelector('[data-disease]') || document.querySelector('.result-name');
+      if (resultEl && resultEl.textContent && resultEl.textContent !== '—') {
+        lastDiagnosis = resultEl.textContent.trim();
+      }
+    } catch(e) {}
+
+    return {
+      page: cfg.label,
+      path: cfg.path,
+      role: role,
+      name: name,
+      email: email,
+      lastDiagnosis: lastDiagnosis
+    };
+  }
+
+  function initWidget() {
+    const cfg = getPageConfig();
+    const ctx = buildContext();
+    pgContextData = ctx;
+
+    // Update header subtitle
+    document.getElementById('pg-header-subtitle').textContent = cfg.subtitle || 'Farming Assistant';
+
+    // Update context strip
+    document.getElementById('pg-page-tag').textContent = cfg.label;
+    document.getElementById('pg-role-tag').textContent = '👤 ' + ctx.role.charAt(0).toUpperCase() + ctx.role.slice(1) + ': ' + ctx.name;
+
+    // Set welcome message
+    const welcomeEl = document.getElementById('pg-welcome-msg');
+    if (welcomeEl) {
+      const welcome = (cfg.welcome || DEFAULT_CONFIG.welcome).replace('NAME', ctx.name);
+      welcomeEl.innerHTML = welcome;
+    }
+
+    // Build chips
+    const suggestionsEl = document.getElementById('pg-suggestions');
+    suggestionsEl.innerHTML = '';
+    (cfg.chips || DEFAULT_CONFIG.chips).forEach(chip => {
+      const span = document.createElement('span');
+      span.className = 'pg-chip';
+      span.textContent = chip;
+      span.onclick = () => pgSendChip(span);
+      suggestionsEl.appendChild(span);
+    });
+
+    // If there's a recent diagnosis, add a chip for it
+    if (ctx.lastDiagnosis) {
+      const span = document.createElement('span');
+      span.className = 'pg-chip';
+      span.textContent = `Explain ${ctx.lastDiagnosis}`;
+      span.onclick = () => pgSendChip(span);
+      suggestionsEl.prepend(span);
+    }
+  }
+
+  /* ── TOGGLE ───────────────────────────────────── */
+  window.pgToggleChat = function() {
+    pgOpen = !pgOpen;
+    document.getElementById('pg-chat-panel').classList.toggle('open', pgOpen);
+    document.getElementById('pg-chat-badge').style.display = 'none';
+    if (pgOpen) setTimeout(() => document.getElementById('pg-input').focus(), 300);
+  };
+
+  window.pgHandleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); pgSend(); }
+  };
+
+  window.pgAutoResize = function(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+  };
+
+  window.pgSendChip = function(el) {
+    document.getElementById('pg-suggestions').style.display = 'none';
+    document.getElementById('pg-input').value = el.textContent;
+    pgSend();
+  };
+
+  /* ── SEND ─────────────────────────────────────── */
+  window.pgSend = async function() {
+    const input = document.getElementById('pg-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Auto-detect Telugu from typed input
+    if (/[\u0C00-\u0C7F]/.test(text)) {
+      pgLang = 'te';
+      pgToggleLangSilent('te');
+    }
+
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('pg-suggestions').style.display = 'none';
+
+    pgHistory.push({ role: 'user', content: text });
+    pgAddBubble('user', text);
+    pgScrollBottom();
+
+    const typing = document.getElementById('pg-typing');
+    typing.style.display = 'flex';
+    pgScrollBottom();
+
+    // Refresh context on every send (captures latest diagnosis)
+    pgContextData = buildContext();
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: pgHistory,
+          context: pgContextData
+        })
+      });
+      const data = await resp.json();
+      typing.style.display = 'none';
+      const reply = data.reply || data.error || 'Sorry, something went wrong.';
+      pgHistory.push({ role: 'assistant', content: reply });
+      pgAddBubble('bot', reply, true); // Auto-speak enabled
+    } catch (err) {
+      typing.style.display = 'none';
+      pgAddBubble('bot', '⚠️ Connection error. Please try again.');
+    }
+    pgScrollBottom();
+  };
+
+  function pgAddBubble(role, text, autoSpeak = false) {
+    const msgs = document.getElementById('pg-messages');
+    const div = document.createElement('div');
+    div.className = `pg-msg ${role}`;
+
+    let formatted = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^#{1,3} (.+)/gm, '<strong>$1</strong>')
+      .replace(/^[•\-] (.+)/gm, '• $1');
+
+    if (role === 'bot') {
+      // Add speaker button
+      const speakBtnId = 'speak-' + Date.now();
+      div.innerHTML = `
+        <img class="pg-avatar" src="/static/chatbot_icon.png" alt="bot" onerror="this.style.display='none'">
+        <div>
+          <div class="pg-bubble">${formatted}</div>
+          <button class="pg-speak-btn" id="${speakBtnId}" title="చదువు / Read aloud">🔊</button>
+        </div>`;
+      msgs.appendChild(div);
+      const speakBtn = document.getElementById(speakBtnId);
+      const rawText = text;
+      speakBtn.onclick = () => pgSpeak(rawText, speakBtn);
+      // Auto-speak if requested
+      if (autoSpeak && pgLang === 'te') {
+        setTimeout(() => pgSpeak(rawText, speakBtn), 400);
+      }
+    } else {
+      div.innerHTML = `
+        <div class="pg-bubble">${formatted}</div>
+        <div class="pg-avatar user-av">👤</div>`;
+      msgs.appendChild(div);
+    }
+  }
+
+  function pgScrollBottom() {
+    const msgs = document.getElementById('pg-messages');
+    setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+  }
+
+  // Pre-load voices list (needed for some browsers)
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+
+  // Init on load
+  initWidget();
+
+  // Show badge after 2s
+  setTimeout(() => {
+    if (!pgOpen) document.getElementById('pg-chat-badge').style.display = 'flex';
+  }, 2000);
+
+})();
+</script>

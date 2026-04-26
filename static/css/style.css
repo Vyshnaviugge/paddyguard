@@ -281,3 +281,14 @@ a{text-decoration:none;color:inherit;}
   .shop-banner{flex-direction:column;text-align:center;}
   .sb-left{flex-direction:column;text-align:center;}
 }
+/* Extra Mobile Adjustments */
+@media(max-width:768px){
+  .upload-layout { flex-direction: column; }
+  .upload-sidebar { width: 100%; }
+  .upload-preview-box img { width: 100%; height: auto; aspect-ratio: 1; }
+  .ps-grid, .tips-grid, .disease-grid { grid-template-columns: 1fr; }
+  .result-card { grid-template-columns: 1fr; }
+  .hero-stats { flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .hstat-div { display: none; }
+  .hstat { padding: 10px; text-align: center; }
+}
